@@ -1,67 +1,84 @@
 # PENCIL People Bridge
 
-AI-supported prototype for the PENCIL Internship 2026.
+Working AI prototype for the PENCIL Internship 2026.
 
-## Goal
+> **Core principle:** AI organizes the problem. Humans handle the relationship.
 
-Build and test a working AI assistant that helps HR and managers handle workplace concerns more clearly while keeping human judgment and relationships at the center.
+## What we are building
 
-**Core principle:** AI organizes the problem. Humans handle the relationship.
+After employee interviews and direct validation with PENCIL HR, our current direction combines two ideas:
 
-## Current validated direction
+1. **HR Issue Organizer** — help HR separate facts, interpretations, concerns/emotions, missing information, desired outcomes, and neutral questions to clarify.
+2. **Manager Communication Support** — help managers prepare communication based only on an employee's explicitly stated needs and working preferences.
 
-The prototype combines two functions:
+The AI does **not** decide who is right, diagnose employees, or replace HR/manager judgment.
 
-1. **HR Issue Organizer**
-   - Turn messy or emotional notes into a structured view.
-   - Separate facts, interpretations, concerns/emotions, missing information, desired outcomes, and questions to clarify.
-   - Never decide who is right or wrong.
+## Current progress
 
-2. **Manager Communication Support**
-   - Help managers prepare how to communicate with an employee based on the employee's stated needs and working preferences.
-   - Examples: written follow-up, clearer priorities, smaller task steps, more processing time, direct feedback.
-   - Never diagnose, label, or infer medical/neurodevelopmental conditions.
+### Prototype V0 — in progress
 
-A communication-clarity checker may be added later as a supporting feature.
+The `prototype-v1` branch now contains the first real MVP slice:
+
+- Japanese-first web interface
+- Anonymized workplace-note input
+- Real OpenAI API route using the Responses API
+- Structured HR output for:
+  - Facts
+  - Interpretations
+  - Concerns / emotions
+  - Missing information
+  - Questions to clarify
+  - Desired outcomes
+  - Possible next steps
+- Human-review warning
+- Privacy/diagnosis guardrails
+
+**Next:** build Manager Communication Support, then test the prototype with real PENCIL employees using anonymized scenarios.
+
+## Run the V0 locally
+
+```bash
+git clone https://github.com/Jsmitty78/pencil-people-bridge.git
+cd pencil-people-bridge
+git checkout prototype-v1
+npm install
+cp .env.example .env.local
+# Add your OPENAI_API_KEY to .env.local
+npm run dev
+```
+
+Then open `http://localhost:3000`.
 
 ## MVP flow
 
 1. HR enters anonymized notes about a workplace concern.
-2. AI organizes the issue objectively.
+2. AI organizes the issue without deciding who is right or wrong.
 3. HR reviews and corrects the output.
-4. AI identifies missing information and useful clarification questions.
-5. HR/manager enters the employee's stated communication preferences.
-6. AI generates a suggested conversation approach and follow-up structure.
-7. Human HR/manager makes all final decisions.
+4. AI identifies missing information and neutral clarification questions.
+5. HR/manager enters the employee's **stated** communication preferences.
+6. AI suggests a manager conversation approach and follow-up structure.
+7. Humans make all final decisions and handle the relationship.
 
 ## Team
 
 - **Jake + Takeshi:** prototype development, AI logic, deployment, debugging
-- **Sydney:** research synthesis, anonymized test scenarios, employee testing plan, feedback collection, results for presentation
+- **Sydney:** research synthesis, anonymized testing scenarios, employee test plan, feedback collection, and presentation evidence
 
 ## Prototype success criteria
 
 Before the final presentation, we want to be able to truthfully say:
 
-> We identified an organizational problem through employee interviews, co-developed the solution direction with PENCIL HR, built a working AI prototype, and tested it with real PENCIL employees.
+> We identified an organizational problem through employee interviews, co-developed the direction with PENCIL HR, built a working AI prototype, and tested it with real PENCIL employees.
 
-## Privacy rules
+## Privacy and safety rules
 
 - Do not commit real employee names, private HR cases, client information, or confidential PENCIL data.
 - Use anonymized or fictionalized scenarios in the repository.
-- Do not store medical diagnoses or infer them with AI.
+- Do not store or infer medical or neurodevelopmental diagnoses.
+- Use only employee needs/preferences that were explicitly provided.
 - AI output must always be reviewed by a human.
+- The prototype must not make disciplinary, legal, hiring, firing, promotion, or compensation decisions.
 
-## Tonight's target
+## Repository docs
 
-A working V0 prototype with:
-
-- Japanese-first interface
-- Workplace concern text input
-- Real AI analysis
-- Structured HR output
-- Manager communication support
-- Human-review warning
-- Simple feedback form
-
-See `/docs` for the problem statement, prototype plan, and employee test plan.
+See `/docs` for the problem statement, Hitomi-san feedback, prototype plan, and employee test plan.
