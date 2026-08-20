@@ -1,80 +1,51 @@
-# Prototype Plan
+# Prototype Plan — PENCIL People Bridge
 
-## V0 scope
+## Build order
 
-Build only what is necessary to test the core idea with real PENCIL employees.
+### V0 — HR Issue Organizer
+**Status: started on `prototype-v1`**
 
-### Screen 1: HR Issue Organizer
+Current implementation includes:
+- Japanese-first web screen
+- anonymized workplace note input
+- real OpenAI Responses API route
+- structured output for facts, interpretations, concerns, missing information, clarification questions, desired outcomes, and possible next steps
+- human-review warning
+- no-diagnosis / no-employment-decision guardrails
 
-Input:
-- An anonymized workplace concern or HR note
+Remaining V0 work:
+- run locally and resolve any build/runtime issues
+- improve structured-output reliability
+- add 3 fictional/anonymized test fixtures
+- add copy/export action
+- add simple tester feedback input
 
-AI output:
-- Facts
-- Interpretations
-- Concerns / emotions
-- Missing information
-- Questions to clarify
-- Desired outcome
-- Possible next steps
-
-Rules:
-- Do not decide who is right or wrong.
-- Do not infer diagnoses or protected/sensitive traits.
-- Clearly mark uncertainty.
-- Require human review before use.
-
-### Screen 2: Manager Communication Support
-
+### V1 — Manager Communication Support
 Inputs:
-- Structured issue summary
-- Employee's stated communication preferences / needs
+- reviewed HR issue summary
+- employee's explicitly stated communication needs/preferences
 
-AI output:
-- Suggested conversation approach
-- What to clarify first
-- Questions to ask
-- Communication considerations
-- What to avoid
-- Suggested written follow-up
-- Items to document afterward
+Outputs:
+- suggested conversation approach
+- what to clarify first
+- useful questions
+- communication considerations
+- what to avoid
+- written follow-up suggestion
+- what should be documented afterward
 
-### Screen 3: Feedback
+### V2 — Employee pilot
+- test with HR
+- test with managers
+- collect aggregate scores and comments
+- implement highest-value feedback
 
-Collect:
-- Role: HR / Manager / Staff
-- Usefulness score (1–5)
-- Objectivity score (1–5)
-- Did AI add an incorrect assumption? Yes/No
-- Would this reduce preparation time? 1–5
-- Would you use this at work? Yes / Maybe / No
-- Free-text feedback
+## Guardrails
+- AI organizes; humans decide.
+- Never diagnose or infer employee conditions.
+- Never decide who is right or wrong.
+- Never make hiring, firing, promotion, compensation, disciplinary, or legal decisions.
+- Repository examples must be anonymized or fictionalized.
 
-## Suggested stack
-
-- Next.js + TypeScript
-- Tailwind CSS
-- Server-side LLM API route
-- Structured JSON responses
-- Simple local/hosted anonymous feedback storage for testing
-
-## V0 non-goals
-
-Do not build yet:
-- Chatwork API integration
-- Backlog API integration
-- Employee accounts / SSO
-- Medical or neurodevelopmental diagnosis features
-- Real HR case database
-- Automated disciplinary decisions
-- Real-time meeting transcription
-
-## Definition of done for tonight
-
-- App runs locally
-- Real AI call works
-- HR organizer produces structured output
-- Manager-support flow works
-- Japanese-first interface is usable
-- No confidential data required
-- Basic feedback can be recorded
+## Definition of a successful internship prototype
+A deployed working prototype that real PENCIL employees can use on anonymized scenarios, with measured feedback that can be shown in the final presentation.
