@@ -12,6 +12,10 @@ type Analysis = {
   possible_next_steps: string[];
 };
 
+const MAX_NOTES_LENGTH = 8000;
+const SAMPLE_NOTES =
+  "社員から、担当マネージャーの指示が途中で変わることがあり、何を優先すべきか分からなくなるという相談があった。本人は質問すると迷惑に思われている気がして、最近は確認をためらうことがあると話している。指示変更がどのように伝えられたか、書面で残っているかはまだ確認できていない。";
+
 const sections: Array<[keyof Analysis, string]> = [
   ["facts", "確認できる事実 / Facts"],
   ["interpretations", "解釈・受け止め / Interpretations"],
@@ -28,8 +32,16 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  function reset() {
+    setNotes("");
+    setAnalysis(null);
+    setError("");
+  }
+
   async function analyze() {
-    if (!notes.trim()) return;
+    const trimmedNotes = notes.trim();
+    if (!trimmedNotes || loading) return;
+
     setLoading(true);
     setError("");
     setAnalysis(null);
@@ -38,13 +50,16 @@ export default function Home() {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notes }),
+        body: JSON.stringify({ notes: trimmedNotes }),
       });
+
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Analysis failed");
-      setAnalysis(data.analysis);
+      if (!response.ok) throw new Error(data.error || "AI analysis failed");
+      if (!data.analysis) throw new Error("分析結果を取得できませんでした。");
+
+      setAnalysis(data.analysis as Analysis);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Analysis failed");
+      setError(err instanceof Error ? err.message : "AI analysis failed");
     } finally {
       setLoading(false);
     }
@@ -65,7 +80,7 @@ export default function Home() {
         <strong>Human review required.</strong> AIの出力は事実認定・人事判断ではありません。必ずHRまたはマネージャーが確認してください。
       </div>
 
-      <section className="grid">
+      <section className="grid" aria-busy={loading}>
         <div className="card">
           <h2>1. 相談内容を入力</h2>
           <p className="empty">実在の氏名、クライアント名、機密情報は入力しないでください。</p>
@@ -73,25 +88,50 @@ export default function Home() {
           <textarea
             id="notes"
             value={notes}
+            maxLength={MAX_NOTES_LENGTH}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="例：社員から、指示が途中で変わることが多く、質問すると迷惑に思われている気がするという相談があった…"
           />
-          <button onClick={analyze} disabled={loading || !notes.trim()}>
+          <div className="inputMeta">
+            <span>{notes.length.toLocaleString()} / {MAX_NOTES_LENGTH.toLocaleString()} characters</span>
+            <button
+              className="textButton"
+              type="button"
+              onClick={() => {
+                setNotes(SAMPLE_NOTES);
+                setAnalysis(null);
+                setError("");
+              }}
+              disabled={loading}
+            >
+              サンプルを入力
+            </button>
+          </div>
+          <button type="button" onClick={analyze} disabled={loading || !notes.trim()}>
             {loading ? "整理しています…" : "AIで状況を整理する"}
           </button>
-          {error && <div className="error">{error}</div>}
+          {error && <div className="error" role="alert">{error}</div>}
         </div>
 
         <div className="card">
-          <h2>2. 客観的に整理</h2>
+          <div className="resultHeader">
+            <h2>2. 客観的に整理</h2>
+            {(analysis || notes) && (
+              <button className="textButton" type="button" onClick={reset} disabled={loading}>
+                リセット
+              </button>
+            )}
+          </div>
           {!analysis ? (
-            <p className="empty">分析結果がここに表示されます。事実と解釈を分け、不足情報や次に確認すべき質問を整理します。</p>
+            <p className="empty">
+              分析結果がここに表示されます。事実と解釈を分け、不足情報や次に確認すべき質問を整理します。
+            </p>
           ) : (
             sections.map(([key, title]) => (
               <div className="resultSection" key={key}>
                 <h3>{title}</h3>
                 {analysis[key]?.length ? (
-                  <ul>{analysis[key].map((item, i) => <li key={i}>{item}</li>)}</ul>
+                  <ul>{analysis[key].map((item, i) => <li key={`${key}-${i}`}>{item}</li>)}</ul>
                 ) : (
                   <span className="empty">なし / None identified</span>
                 )}
@@ -101,7 +141,7 @@ export default function Home() {
         </div>
       </section>
 
-      <p className="footerNote">V0 scope: HR Issue Organizer only. Manager Communication Support is the next workflow.</p>
+      <p className="footerNote">V0 scope: HR Issue Organizer only. AI output is a preparation aid, not an HR decision.</p>
     </main>
   );
 }
