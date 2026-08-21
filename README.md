@@ -30,7 +30,9 @@ The `prototype-v1` branch now contains the first real MVP slice:
   - Possible next steps
 - Human-review warning
 - Privacy/diagnosis guardrails
-- A human-reviewed next-meeting view that reuses missing information, clarification questions, and possible next steps
+- Editable HR review for every AI-generated section, including add/delete controls
+- Explicit HR approval before the final meeting-preparation view is unlocked
+- A local copy action for the HR-reviewed summary
 
 The V0 scope is intentionally limited to the HR Issue Organizer.
 
@@ -53,9 +55,10 @@ Then open `http://localhost:3000`.
 1. HR answers short, guided questions about an anonymized workplace concern.
 2. The UI combines those answers into a structured note and marks blank areas as unknown.
 3. AI organizes the issue without deciding who is right or wrong.
-4. HR reviews and corrects the output.
-5. The UI maps missing information, neutral questions, and possible next steps into before/during/after meeting preparation.
-6. Humans make all final decisions and handle the relationship.
+4. HR edits, deletes, or manually adds items in a separate review copy.
+5. HR explicitly approves the reviewed version.
+6. Only the approved HR-reviewed content is mapped into before/during/after meeting preparation.
+7. Humans make all final decisions and handle the relationship.
 
 ## Why V0 uses guided intake
 

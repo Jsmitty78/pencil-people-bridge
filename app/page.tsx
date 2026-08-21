@@ -110,14 +110,34 @@ const guidedFields: Array<{
 ];
 
 const sections: Array<[keyof Analysis, string]> = [
-  ["facts", "報告された事実 / Reported facts"],
+  ["facts", "報告された出来事・主張 / Reported events & claims"],
   ["interpretations", "解釈・受け止め / Interpretations"],
-  ["concerns", "懸念・感情 / Concerns"],
+  ["concerns", "懸念・表明された感情 / Concerns & emotions expressed"],
   ["missing_information", "不足している情報 / Missing information"],
   ["questions_to_clarify", "確認すべき質問 / Questions to clarify"],
   ["desired_outcomes", "望んでいる結果 / Desired outcomes"],
   ["possible_next_steps", "次のステップ候補 / Possible next steps"],
 ];
+
+const analysisKeys: Array<keyof Analysis> = [
+  "facts",
+  "interpretations",
+  "concerns",
+  "missing_information",
+  "questions_to_clarify",
+  "desired_outcomes",
+  "possible_next_steps",
+];
+
+const summaryHeadings: Record<keyof Analysis, string> = {
+  facts: "報告された出来事・主張",
+  interpretations: "解釈・受け止め",
+  concerns: "懸念・表明された感情",
+  missing_information: "不足している情報",
+  questions_to_clarify: "確認すべき質問",
+  desired_outcomes: "望んでいる結果",
+  possible_next_steps: "次のステップ候補",
+};
 
 function buildGuidedNotes(input: GuidedInput) {
   const labels: Array<[keyof GuidedInput, string]> = [
@@ -143,11 +163,105 @@ function ActionList({ items }: { items: string[] }) {
   );
 }
 
+function cloneAnalysis(source: Analysis): Analysis {
+  return Object.fromEntries(
+    analysisKeys.map((key) => [key, [...source[key]]])
+  ) as Analysis;
+}
+
+function normalizeReviewedAnalysis(source: Analysis): Analysis {
+  return Object.fromEntries(
+    analysisKeys.map((key) => [
+      key,
+      source[key].map((item) => item.trim()).filter(Boolean),
+    ])
+  ) as Analysis;
+}
+
+function buildReviewedSummary(source: Analysis) {
+  const content = analysisKeys.flatMap((key) => [
+    `【${summaryHeadings[key]}】`,
+    ...(source[key].length ? source[key].map((item) => `・${item}`) : ["・なし"]),
+    "",
+  ]);
+
+  return [
+    "PENCIL People Bridge — HR Issue Organizer V0",
+    "確認状況：HRレビュー済み（AIの出力を人間のHRが確認・編集した内容です）",
+    "",
+    ...content,
+    "注意：この整理結果は事実認定や人事判断ではありません。最終判断は人間のHRが行います。",
+  ].join("\n");
+}
+
+type EditableSectionProps = {
+  sectionKey: keyof Analysis;
+  title: string;
+  items: string[];
+  onChange: (index: number, value: string) => void;
+  onDelete: (index: number) => void;
+  onAdd: () => void;
+};
+
+function EditableSection({
+  sectionKey,
+  title,
+  items,
+  onChange,
+  onDelete,
+  onAdd,
+}: EditableSectionProps) {
+  return (
+    <div className="editableSection" data-testid={`review-section-${sectionKey}`}>
+      <div className="editableSectionHeader">
+        <h3>{title}</h3>
+        <button
+          className="addItemButton"
+          type="button"
+          onClick={onAdd}
+          data-testid={`add-${sectionKey}`}
+        >
+          ＋ 項目を追加
+        </button>
+      </div>
+      {items.length ? (
+        <div className="editableItems">
+          {items.map((item, index) => (
+            <div className="editableItem" key={`${sectionKey}-${index}`}>
+              <textarea
+                className="reviewTextarea"
+                value={item}
+                onChange={(event) => onChange(index, event.target.value)}
+                aria-label={`${title} ${index + 1}`}
+                data-testid={`review-item-${sectionKey}-${index}`}
+              />
+              <button
+                className="deleteItemButton"
+                type="button"
+                onClick={() => onDelete(index)}
+                aria-label={`${title}の項目${index + 1}を削除`}
+                data-testid={`delete-${sectionKey}-${index}`}
+              >
+                削除
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="empty editableEmpty">項目なし。「項目を追加」からHRの確認内容を追加できます。</p>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [inputMode, setInputMode] = useState<InputMode>("guided");
   const [guidedInput, setGuidedInput] = useState<GuidedInput>(EMPTY_GUIDED_INPUT);
   const [notes, setNotes] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [reviewedAnalysis, setReviewedAnalysis] = useState<Analysis | null>(null);
+  const [reviewApproved, setReviewApproved] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -157,6 +271,9 @@ export default function Home() {
 
   function clearResults() {
     setAnalysis(null);
+    setReviewedAnalysis(null);
+    setReviewApproved(false);
+    setCopyStatus("");
     setError("");
   }
 
@@ -164,7 +281,57 @@ export default function Home() {
     setGuidedInput(EMPTY_GUIDED_INPUT);
     setNotes("");
     setAnalysis(null);
+    setReviewedAnalysis(null);
+    setReviewApproved(false);
+    setCopyStatus("");
     setError("");
+  }
+
+  function invalidateApproval() {
+    setReviewApproved(false);
+    setCopyStatus("");
+  }
+
+  function updateReviewedItem(key: keyof Analysis, index: number, value: string) {
+    setReviewedAnalysis((current) => current ? {
+      ...current,
+      [key]: current[key].map((item, itemIndex) => itemIndex === index ? value : item),
+    } : current);
+    invalidateApproval();
+  }
+
+  function deleteReviewedItem(key: keyof Analysis, index: number) {
+    setReviewedAnalysis((current) => current ? {
+      ...current,
+      [key]: current[key].filter((_, itemIndex) => itemIndex !== index),
+    } : current);
+    invalidateApproval();
+  }
+
+  function addReviewedItem(key: keyof Analysis) {
+    setReviewedAnalysis((current) => current ? {
+      ...current,
+      [key]: [...current[key], ""],
+    } : current);
+    invalidateApproval();
+  }
+
+  function approveReviewedContent() {
+    if (!reviewedAnalysis) return;
+    setReviewedAnalysis(normalizeReviewedAnalysis(reviewedAnalysis));
+    setReviewApproved(true);
+    setCopyStatus("");
+  }
+
+  async function copyReviewedSummary() {
+    if (!reviewedAnalysis || !reviewApproved) return;
+
+    try {
+      await navigator.clipboard.writeText(buildReviewedSummary(reviewedAnalysis));
+      setCopyStatus("HRレビュー済みの整理結果をコピーしました。");
+    } catch {
+      setCopyStatus("コピーできませんでした。ブラウザのクリップボード権限を確認してください。");
+    }
   }
 
   async function analyze() {
@@ -174,6 +341,9 @@ export default function Home() {
     setLoading(true);
     setError("");
     setAnalysis(null);
+    setReviewedAnalysis(null);
+    setReviewApproved(false);
+    setCopyStatus("");
 
     try {
       const response = await fetch("/api/analyze", {
@@ -186,7 +356,9 @@ export default function Home() {
       if (!response.ok) throw new Error(data.error || "AI analysis failed");
       if (!data.analysis) throw new Error("分析結果を取得できませんでした。");
 
-      setAnalysis(data.analysis as Analysis);
+      const aiAnalysis = data.analysis as Analysis;
+      setAnalysis(aiAnalysis);
+      setReviewedAnalysis(cloneAnalysis(aiAnalysis));
     } catch (err) {
       setError(err instanceof Error ? err.message : "AI analysis failed");
     } finally {
@@ -341,11 +513,21 @@ export default function Home() {
       </section>
 
       <section className="resultWorkspace">
-        <div className="card resultCard">
-          <h2>2. 客観的に整理</h2>
+        <div className="card aiDraftCard">
+          <div className="sectionTitleRow">
+            <h2>2. AIが整理した下書き</h2>
+            {analysis && (
+              <span
+                className={`statusBadge ${reviewApproved ? "reference" : "draft"}`}
+                data-testid="ai-draft-status"
+              >
+                {reviewApproved ? "Original AI draft — reference only" : "AI draft — not yet reviewed"}
+              </span>
+            )}
+          </div>
           {!analysis ? (
             <p className="empty">
-              分析結果がここに表示されます。報告された事実と解釈を分け、不足情報と確認質問を明確にします。
+              AIの分析結果がここに表示されます。この内容はHRが確認するまで会議準備には使われません。
             </p>
           ) : (
             sections.map(([key, title]) => (
@@ -357,29 +539,91 @@ export default function Home() {
           )}
         </div>
 
-        <div className="card meetingPlan">
-          <h2>3. 次回ミーティングに活かす</h2>
+        <div className={`card reviewCard ${reviewApproved ? "approved" : ""}`}>
+          <div className="sectionTitleRow">
+            <h2>3. HRが確認・編集する</h2>
+            {reviewedAnalysis && (
+              <span
+                className={`statusBadge ${reviewApproved ? "reviewed" : "reviewing"}`}
+                data-testid="hr-review-status"
+              >
+                {reviewApproved ? "HR-reviewed content" : "HR review in progress"}
+              </span>
+            )}
+          </div>
+          {!reviewedAnalysis ? (
+            <p className="empty">AI分析後、すべての項目を編集・削除・追加できるHRレビュー欄が表示されます。</p>
+          ) : (
+            <>
+              <p className="reviewIntro">
+                AIの文案をそのまま承認せず、HRが根拠・表現・安全性を確認してください。編集すると承認状態は解除されます。
+              </p>
+              {sections.map(([key, title]) => (
+                <EditableSection
+                  key={key}
+                  sectionKey={key}
+                  title={title}
+                  items={reviewedAnalysis[key]}
+                  onChange={(index, value) => updateReviewedItem(key, index, value)}
+                  onDelete={(index) => deleteReviewedItem(key, index)}
+                  onAdd={() => addReviewedItem(key)}
+                />
+              ))}
+              <div className="reviewActions">
+                <button
+                  className="reviewCompleteButton"
+                  type="button"
+                  onClick={approveReviewedContent}
+                  data-testid="review-complete"
+                >
+                  内容を確認しました / Review complete
+                </button>
+                {reviewApproved && (
+                  <button
+                    className="copyButton"
+                    type="button"
+                    onClick={copyReviewedSummary}
+                    data-testid="copy-reviewed-summary"
+                  >
+                    整理結果をコピー / Copy reviewed summary
+                  </button>
+                )}
+              </div>
+              {copyStatus && <p className="copyStatus" role="status">{copyStatus}</p>}
+            </>
+          )}
+        </div>
+      </section>
+
+      <section className={`card meetingPlan ${reviewApproved ? "unlocked" : "locked"}`}>
+          <div className="sectionTitleRow">
+            <h2>4. 最終ミーティング準備</h2>
+            {reviewApproved && <span className="statusBadge reviewed">HR-reviewed content</span>}
+          </div>
           <p className="meetingPlanIntro">
-            AIが決定する行動ではありません。HRが選び、修正して使うための準備リストです。
+            AIの生出力ではなく、HRが確認・編集し、承認した内容だけを使用します。
           </p>
-          {!analysis ? (
-            <p className="empty">分析後、不足情報と質問を次回ミーティングの流れに並べ替えて表示します。</p>
+          {!reviewApproved || !reviewedAnalysis ? (
+            <div className="approvalGate" data-testid="meeting-approval-gate">
+              <strong>HR approval required</strong>
+              <span>「内容を確認しました / Review complete」を押すと、Before／During／Afterが表示されます。</span>
+            </div>
           ) : (
             <>
               <div className="actionStage">
                 <span className="stageNumber">Before</span>
                 <h3>ミーティング前に確認</h3>
-                <ActionList items={analysis.missing_information} />
+                <ActionList items={reviewedAnalysis.missing_information} />
               </div>
               <div className="actionStage">
                 <span className="stageNumber">During</span>
                 <h3>ミーティングで中立的に質問</h3>
-                <ActionList items={analysis.questions_to_clarify} />
+                <ActionList items={reviewedAnalysis.questions_to_clarify} />
               </div>
               <div className="actionStage">
                 <span className="stageNumber">After</span>
                 <h3>ミーティング後の候補</h3>
-                <ActionList items={analysis.possible_next_steps} />
+                <ActionList items={reviewedAnalysis.possible_next_steps} />
               </div>
               <div className="humanGate">
                 <strong>Human decision gate</strong>
@@ -387,7 +631,6 @@ export default function Home() {
               </div>
             </>
           )}
-        </div>
       </section>
 
       <p className="footerNote">V0 scope: HR Issue Organizer only. AI output is a preparation aid, not an HR decision.</p>
