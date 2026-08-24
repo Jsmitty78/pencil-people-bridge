@@ -36,6 +36,7 @@ type Signal = {
 
 const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/$/, "");
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen3:4b";
+const ENABLE_LOCAL_NLI = process.env.ENABLE_LOCAL_NLI === "true";
 const MAX_ISSUES = 20;
 const MAX_ENTRIES_PER_ISSUE = 60;
 const MAX_TEXT_LENGTH = 1500;
@@ -141,6 +142,8 @@ function explicitContradictions(issues: IssueInput[]): Contradiction[] {
 }
 
 async function localNli(issues: IssueInput[]): Promise<Contradiction[] | null> {
+  if (!ENABLE_LOCAL_NLI) return null;
+
   const compactIssues = issues.map((issue) => ({
     issue_id: issue.issueId,
     entries: issue.entries.map((entry) => ({
@@ -300,7 +303,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       results,
       withinThresholdCount: issues.length - results.length,
-      mode: ollamaContradictions ? "local-nli" : "demo-fallback",
+      mode: ollamaContradictions ? "local-nli" : "concept-demo",
       generatedAt: new Date().toISOString(),
     });
   } catch (error) {
