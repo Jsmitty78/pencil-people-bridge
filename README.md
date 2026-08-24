@@ -1,42 +1,60 @@
-# PENCIL People Bridge
+# PENCIL Context Bridge
 
-Working AI prototype for the PENCIL Internship 2026.
+Working local-AI prototype for the PENCIL Internship 2026.
 
-> **Core principle:** AI organizes the problem. Humans handle the relationship.
+> **Core principle:** 「情報は伝わっている。でも、共通理解として残っていない。」
+>
+> **Direction:** 「翻訳から、共通理解へ。」
 
-## What we are building
+## Current prototype
 
-Prototype V0 is the **HR Issue Organizer**: it helps HR separate reported facts, interpretations, concerns/emotions, missing information, desired outcomes, neutral questions to clarify, and possible next steps.
+The `prototype-v1` branch is now the **Pre-Send Context Check** validated through PENCIL employee interviews and direct HR feedback.
 
-The AI does **not** decide who is right, diagnose employees, or replace HR/manager judgment.
+An employee pastes a draft message intended for Chatwork, Backlog, email, or another work tool. The local AI checks whether the message contains enough context for another person to act on it with the same understanding.
 
-## Current progress
+The prototype checks:
 
-### Prototype V0 — in progress
+- Purpose / why the message is being sent
+- Background and prior context
+- Requested action
+- Expected output / definition of done
+- Owner
+- Deadline
+- Reference material, link, ticket, or prior message
+- Decision / approval owner when relevant
+- Ambiguous wording and implicit assumptions
+- Conflicting instructions
 
-The `prototype-v1` branch now contains the first real MVP slice:
+It then produces:
 
-- Japanese-first web interface
-- Guided, anonymized intake with an information-completeness indicator
-- Free-form anonymized notes as an alternative input mode
-- Free local AI using Ollama and `qwen3:4b`
-- Structured HR output for:
-  - Facts
-  - Interpretations
-  - Concerns / emotions
-  - Missing information
-  - Questions to clarify
-  - Desired outcomes
-  - Possible next steps
-- Human-review warning
-- Privacy/diagnosis guardrails
-- Editable HR review for every AI-generated section, including add/delete controls
-- Explicit HR approval before the final meeting-preparation view is unlocked
-- A local copy action for the HR-reviewed summary
+- A clarity score
+- Clear / unclear / missing context indicators
+- Misunderstanding risks
+- Questions to confirm before sending
+- A rewritten Japanese message
+- Optional English version
+- Copy-ready output for Chatwork / Backlog
 
-The V0 scope is intentionally limited to the HR Issue Organizer.
+## HR-provided anonymized evidence implemented
 
-## Run the V0 locally
+The prototype includes short anonymized test examples derived from communication logs supplied by PENCIL HR. No real employee names or identifying information are included.
+
+Examples include:
+
+1. A link/document shared without explaining its purpose or what the recipients are expected to do.
+2. A request using a broad deadline such as 「面談まで」 without an exact time/date.
+
+The AI prompt also incorporates communication patterns supported by the HR log:
+
+- 「具体的に」 should clarify **いつまでに・何を・どうする**.
+- Completion may require review/approval, not just finishing the sender's own work.
+- When resending or correcting a message, explain why so it is not mistaken for an accidental duplicate.
+- Confirm ambiguous instructions before creating a new task, format, or deliverable based on assumptions.
+- If an established company format/process exists, confirm before changing it.
+
+These rules are used to improve clarity, **not** to judge politeness, personality, competence, nationality, or employee performance.
+
+## Run locally
 
 ```bash
 git clone https://github.com/Jsmitty78/pencil-people-bridge.git
@@ -50,57 +68,52 @@ npm run dev
 
 Then open `http://localhost:3000`.
 
-## MVP flow
+If you already have the repository locally:
 
-1. HR answers short, guided questions about an anonymized workplace concern.
-2. The UI combines those answers into a structured note and marks blank areas as unknown.
-3. AI organizes the issue without deciding who is right or wrong.
-4. HR edits, deletes, or manually adds items in a separate review copy.
-5. HR explicitly approves the reviewed version.
-6. Only the approved HR-reviewed content is mapped into before/during/after meeting preparation.
-7. Humans make all final decisions and handle the relationship.
+```bash
+git checkout prototype-v1
+git pull origin prototype-v1
+npm install
+ollama serve
+npm run dev
+```
 
-## Why V0 uses guided intake
+## Local AI
 
-A single large text box makes output quality depend too heavily on how much time the HR user has and how they structure their writing. Guided intake asks separately about the reported event, timing/frequency, source of the information, available records, other perspectives, explicitly expressed concerns/emotions, and the employee's desired outcome. Empty fields are sent to the model as unknown rather than silently omitted.
+The real prototype continues to use **Ollama locally** rather than an external API.
 
-This follows the general shape of established HR listening and investigation guidance:
+Default model:
 
-- [Acas investigation planning](https://www.acas.org.uk/investigations-for-discipline-and-grievance-step-by-step/step-2-preparing-for-an-investigation) identifies the issue, people to speak with, evidence sources, time limits, and confidentiality before deciding outcomes.
-- [Japan Ministry of Health, Labour and Welfare consultation guidance](https://www.mhlw.go.jp/file/06-Seisakujouhou-11900000-Koyoukintoujidoukateikyoku/0000181888.pdf) recommends confirming the consultation content with the person, creating a record where needed, and then verifying facts and considering responses.
-- [Microsoft Viva Glint's ACT approach](https://learn.microsoft.com/en-us/viva/glint/reports/take-action-team-conversations) connects feedback to an ongoing conversation: acknowledge the current situation, collaborate on the destination, and take one step forward.
+```text
+qwen3:4b
+```
 
-### Data-collection options considered
+Optional environment variables:
 
-| Option | Benefit | Main risk / cost | V0 decision |
-| --- | --- | --- | --- |
-| Guided intake that builds the note automatically | More complete inputs without requiring a long essay | Still depends on an HR user asking and recording answers | Implemented |
-| Short pre-meeting pulse questionnaire | Lets the employee answer privately before a meeting | Requires identity, delivery, access, retention, and confidentiality design | Candidate for later validation |
-| Consent-based meeting note or transcript import | Captures more detail with less manual typing | High privacy, consent, redaction, and accuracy risk | Not built in V0 |
-| Automatic collection from work systems | Could surface context and records | Can become employee monitoring and requires integrations, permissions, and governance | Explicitly out of V0 scope |
+```bash
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen3:4b
+```
 
-“Automatic” in this V0 means automatically composing structured answers and turning analysis into meeting preparation. It does not mean monitoring employees or ingesting workplace communications.
+## Future vision from HR feedback
 
-## Team
+PENCIL HR strongly validated the pre-send check and suggested a future version that could, with appropriate consent and privacy controls, use existing personality / communication-style assessment data to adjust a message for the specific recipient.
 
-- **Jake + Takeshi:** prototype development, AI logic, deployment, debugging
-- **Sydney:** research synthesis, anonymized testing scenarios, employee test plan, feedback collection, and presentation evidence
+That feature is **not implemented** in the current prototype. The current prototype does not ingest, store, infer, or classify personality, medical, or neurodevelopmental information.
 
-## Prototype success criteria
+## Privacy and safety
 
-Before the final presentation, we want to be able to truthfully say:
+- Do not input real employee names, private HR cases, client names, or confidential PENCIL information during testing.
+- Use anonymized or fictional scenarios only.
+- Inputs are not persisted by the application.
+- Do not infer medical, mental-health, personality, or neurodevelopmental diagnoses.
+- AI does not make disciplinary, legal, hiring, firing, promotion, compensation, or performance decisions.
+- Missing information is left as a confirmation placeholder rather than invented.
 
-> We identified an organizational problem through employee interviews, co-developed the direction with PENCIL HR, built a working AI prototype, and tested it with real PENCIL employees.
+## Backup
 
-## Privacy and safety rules
+The previous HR Issue Organizer V0 was preserved before this change on:
 
-- Do not commit real employee names, private HR cases, client information, or confidential PENCIL data.
-- Use anonymized or fictionalized scenarios in the repository.
-- Do not store or infer medical or neurodevelopmental diagnoses.
-- Use only employee needs/preferences that were explicitly provided.
-- AI output must always be reviewed by a human.
-- The prototype must not make disciplinary, legal, hiring, firing, promotion, or compensation decisions.
-
-## Repository docs
-
-See `/docs` for the problem statement, Hitomi-san feedback, prototype plan, and employee test plan.
+```text
+prototype-v1-hr-organizer-backup
+```
