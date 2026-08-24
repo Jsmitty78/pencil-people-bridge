@@ -88,7 +88,7 @@ button:focus-visible { outline: 3px solid rgba(230, 0, 18, .28); outline-offset:
 .reportMode { display: flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid var(--line); color: var(--muted); font: 900 8px/1 Arial, Helvetica, sans-serif; letter-spacing: .1em; }
 .reportMode span { width: 7px; height: 7px; border-radius: 50%; }
 .reportMode span.online { background: var(--green); }
-.reportMode span.fallback { background: #ba7b00; }
+.reportMode span.concept { background: #ba7b00; }
 
 .emptyReport { display: grid; place-items: center; align-content: center; min-height: 500px; text-align: center; }
 .emptyReport > span { color: #cfcbc4; font: 900 55px/1 Arial, Helvetica, sans-serif; letter-spacing: -.06em; }
