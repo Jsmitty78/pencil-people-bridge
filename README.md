@@ -1,4 +1,4 @@
-# PENCIL Bridge — Cross-Channel Detection Prototype
+# PENCIL Bridge — Permission-Gated Excel Workflow Prototype
 
 Concept prototype aligned with the August 24, 2026 system design document.
 
@@ -6,17 +6,19 @@ Concept prototype aligned with the August 24, 2026 system design document.
 
 ## What this branch demonstrates
 
-The `bridge-system-v1` branch replaces the manual HR intake flow with an HR-only weekly review concept:
+The `bridge-system-v1` branch demonstrates an HR-only weekly review concept without asking staff to adopt another tool:
 
-1. Existing Backlog, Chatwork, and meeting-minute records are grouped by Backlog issue.
-2. A deterministic counter identifies unusually high rework.
-3. local NLI plus explicit demo rules compare instructions for contradictions.
-4. reference patterns flag decisions that may have occurred outside the available record.
-5. meeting decisions are compared with execution-phase instructions across channels.
-6. Only flagged issues and situation-specific interview questions are shown to HR.
-7. HR can add a finding to interview notes or record it as a false positive.
+0. Company permission, scope, retention, anonymization, and HR access are agreed before any connection.
+1. Approved Backlog, Chatwork, and meeting records would be read without additional staff input.
+2. Records are grouped at issue/work-product level rather than employee level.
+3. Rework, contradictory instructions, off-record references, and cross-channel mismatches are identified as review candidates.
+4. Only flagged issues, evidence, and situation-specific interview questions are prepared for HR.
+5. The weekly output is formatted as the Excel workbook HR already uses.
+6. HR can add a finding to interview notes or record it as a false positive.
 
 The included records, issue IDs, messages, counts, averages, and thresholds are fictional demonstration data.
+
+Design reference: [PENCIL Bridge — Excel Workflow Concept](https://www.figma.com/design/RAX4Z62Ib6LLJRqA1WnvuS)
 
 ## Honest prototype boundary
 
@@ -28,17 +30,18 @@ Implemented now:
 - cross-channel comparison
 - optional local Ollama NLI with deterministic fallback
 - HR weekly-review dashboard
+- Excel-style weekly summary, review-candidate, interview-note, and false-positive sheets
 - suggested interview questions
 - false-positive and interview-queue interactions
 - no employee names, emotion scores, or individual rankings
 
-Four-week pilot roadmap, not implemented:
+Future permission-gated pilot work, not implemented during the internship:
 
 - real Backlog API connector
 - real Chatwork API connector
 - internal meeting-minutes connector
 - automated role-label anonymization at retrieval
-- Notion API output
+- Excel file generation and approved storage-location integration
 - persistent false-positive storage
 - privacy, consent, access-control, and APPI review
 
@@ -59,7 +62,7 @@ ollama serve
 ENABLE_LOCAL_NLI=true npm run dev
 ```
 
-Open `http://localhost:3000` and select **今週のログを分析**.
+Open `http://localhost:3000` and select **架空データで動作を見る**.
 
 For the most reliable boss demonstration, run `npm run dev` without `ENABLE_LOCAL_NLI`. The prototype then uses clearly labeled deterministic concept-demo rules. Enable local NLI only when Ollama has already been tested on the presentation laptop.
 
@@ -67,7 +70,7 @@ For the most reliable boss demonstration, run `npm run dev` without `ENABLE_LOCA
 
 Do not claim that PENCIL's systems are already connected. Present this build as:
 
-> A working concept prototype that demonstrates the detection logic and HR experience using fictional issue-level records. A four-week pilot would replace the fictional adapters with approved, privacy-reviewed connectors for one or two Consulting Division projects.
+> A working concept prototype that shows how the experience could work after permission is granted. It uses fictional issue-level records, has no live connectors, and prepares the result in the Excel format HR already uses. A later limited pilot could replace the fictional adapters with approved, privacy-reviewed read-only connectors.
 
 ## Safety principles
 
