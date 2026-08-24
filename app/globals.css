@@ -10,7 +10,7 @@
   --paper: #ffffff;
   --canvas: #eeefeb;
   --panel: #f7f7f3;
-  --green: #287052;
+  --green: #217346;
   --amber: #9a691a;
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", YuGothic, Meiryo, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
@@ -51,6 +51,10 @@ button:focus-visible { outline: 3px solid rgba(230, 0, 18, .24); outline-offset:
 .introNote p { margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.9; }
 .introNote small { display: block; margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.7; }
 
+.permissionCallout { display: grid; grid-template-columns: minmax(230px, .38fr) 1fr; align-items: center; gap: 26px; margin: 0 0 22px; padding: 20px 24px; border-left: 5px solid var(--red); background: #f7f7f5; }
+.permissionCallout span { color: var(--red); font: 800 9px/1.4 Arial, Helvetica, sans-serif; letter-spacing: .1em; }
+.permissionCallout strong { font-size: 12px; line-height: 1.7; }
+
 .flow { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 0 26px; padding: 0; list-style: none; border: 1px solid var(--ink); background: var(--paper); }
 .flow li { display: grid; grid-template-columns: auto 1fr; gap: 12px; min-height: 78px; padding: 18px; border-right: 1px solid var(--line); }
 .flow li:last-child { border-right: 0; }
@@ -60,11 +64,13 @@ button:focus-visible { outline: 3px solid rgba(230, 0, 18, .24); outline-offset:
 .flow small { color: var(--muted); font-size: 9px; line-height: 1.4; }
 
 .reportFrame { border: 1px solid var(--ink); background: var(--paper); box-shadow: 7px 7px 0 rgba(23, 23, 23, .06); }
-.reportBar { display: flex; align-items: center; justify-content: space-between; min-height: 54px; gap: 24px; padding: 0 20px; border-bottom: 1px solid var(--ink); }
+.reportBar { display: flex; align-items: center; justify-content: space-between; min-height: 54px; gap: 24px; padding: 0 20px; border-bottom: 1px solid #175c37; background: var(--green); color: #fff; }
 .reportBar div { display: flex; align-items: center; gap: 10px; }
 .reportBar strong { font-size: 12px; }
-.reportBar p { margin: 0; color: var(--muted); font: 700 9px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
-.liveDot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px #e4f0e9; }
+.reportBar p { margin: 0; color: #dcefe4; font: 700 9px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.excelMark { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid rgba(255,255,255,.52); color: #fff; font: 800 13px/1 Arial, Helvetica, sans-serif; }
+.workbookTabs { display: flex; align-items: center; gap: 28px; min-height: 42px; padding: 0 20px; border-bottom: 1px solid #c6d0c7; background: #edf1ec; color: #383d38; font-size: 9px; }
+.workbookTabs b { display: flex; align-items: center; align-self: stretch; border-bottom: 3px solid var(--green); color: var(--green); }
 
 .reportLayout { display: grid; grid-template-columns: 278px minmax(0, 1fr); }
 .batchPanel { padding: 30px 25px; border-right: 1px solid var(--ink); background: var(--panel); }
@@ -117,6 +123,22 @@ button:focus-visible { outline: 3px solid rgba(230, 0, 18, .24); outline-offset:
 .summaryItem.alert strong { color: #ff6f79; }
 .summaryItem span { color: #b8b8b8; font-size: 8px; white-space: nowrap; }
 .summaryRow > p { align-self: center; justify-self: end; max-width: 255px; margin: 0; color: #aaa; font-size: 8.5px; line-height: 1.6; text-align: right; }
+
+.excelTableWrap { margin: 0 0 22px; overflow-x: auto; border: 1px solid #bfcabf; background: var(--paper); }
+.excelTable { width: 100%; min-width: 820px; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
+.excelTable th, .excelTable td { padding: 11px 10px; border-right: 1px solid #d9dfd8; border-bottom: 1px solid #d1d8d0; text-align: left; vertical-align: top; line-height: 1.5; }
+.excelTable th:last-child, .excelTable td:last-child { border-right: 0; }
+.excelTable th { background: #e8eee6; color: #354138; font-size: 8px; letter-spacing: .035em; }
+.excelTable th:nth-child(1) { width: 70px; }
+.excelTable th:nth-child(2) { width: 88px; }
+.excelTable th:nth-child(3) { width: 145px; }
+.excelTable th:nth-child(5) { width: 62px; }
+.excelTable th:nth-child(7) { width: 90px; }
+.excelTable .needsReview td:first-child { color: var(--red); font-weight: 800; }
+.excelTable .normalRow { color: var(--muted); background: #fbfbf9; }
+.sheetDivider { display: flex; align-items: baseline; gap: 14px; margin: 2px 0 13px; padding-bottom: 9px; border-bottom: 1px solid var(--ink); }
+.sheetDivider b { color: var(--green); font-size: 11px; }
+.sheetDivider span { color: var(--muted); font-size: 8px; }
 
 .caseList { display: flex; flex-direction: column; gap: 19px; }
 .caseCard { border: 1px solid var(--line-dark); background: #fbfbf8; transition: opacity .15s ease; }
@@ -208,10 +230,12 @@ button:focus-visible { outline: 3px solid rgba(230, 0, 18, .24); outline-offset:
   .headerMeta { flex-wrap: wrap; gap: 10px 16px; }
   .intro { grid-template-columns: 1fr; gap: 28px; padding: 49px 0 39px; }
   .introNote { max-width: 600px; }
+  .permissionCallout { grid-template-columns: 1fr; gap: 8px; }
   .flow { grid-template-columns: repeat(2, 1fr); }
   .flow li:nth-child(2) { border-right: 0; }
   .flow li:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .reportBar { align-items: flex-start; flex-direction: column; gap: 6px; padding-top: 13px; padding-bottom: 13px; }
+  .workbookTabs { gap: 19px; overflow-x: auto; white-space: nowrap; }
   .reportLayout { grid-template-columns: 1fr; }
   .batchPanel { border-right: 0; border-bottom: 1px solid var(--ink); }
   .sourceList { display: grid; grid-template-columns: repeat(3, 1fr); }
