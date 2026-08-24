@@ -50,10 +50,12 @@ cd pencil-people-bridge
 git checkout bridge-system-v1
 npm install
 
-# Optional: use local NLI
+# Recommended for the boss demonstration
+npm run dev
+
+# Optional only after local NLI has been tested
 ollama pull qwen3:4b
 ollama serve
-
 ENABLE_LOCAL_NLI=true npm run dev
 ```
 
