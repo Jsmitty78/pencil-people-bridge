@@ -1,186 +1,137 @@
 import { NextResponse } from "next/server";
 
-const MAX_NOTES_LENGTH = 8000;
+const MAX_MESSAGE_LENGTH = 6000;
 const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/$/, "");
 const OLLAMA_URL = `${OLLAMA_BASE_URL}/api/chat`;
-const OLLAMA_MODEL = "qwen3:4b";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen3:4b";
 
-const SYSTEM_PROMPT = `You are an HR information-organizing assistant for a workplace prototype in Japan.
-Your job is to organize anonymized workplace notes, not to judge people or decide who is right.
+const SYSTEM_PROMPT = `You are PENCIL Context Bridge, a pre-send context-check assistant for workplace communication in Japan.
+The product idea is: 「情報は伝わっている。でも、共通理解として残っていない。」 and 「翻訳から、共通理解へ。」
+
+Your job is to inspect a draft work message BEFORE it is sent and determine whether the recipient has enough context to act with the same understanding as the sender.
+
+Check these dimensions:
+1. 目的 / Purpose — why this message is being sent.
+2. 背景・経緯 / Background — context needed to understand why now.
+3. 依頼タスク / Requested action — exactly what the recipient should do.
+4. 期待する成果物・完了条件 / Expected output & definition of done.
+5. 担当者 / Owner — who is responsible for the action.
+6. 期限 / Deadline — exact date/time when needed, when relevant.
+7. 参照先 / Reference — link, ticket, document, prior message, or example when the draft depends on one.
+8. 決定権者・確認者 / Decision or approval owner — who confirms completion when relevant.
+9. あいまい表現 / Ambiguity — phrases like 「前と同じ」「いつもの感じ」「例の件」「なるべく早く」, missing subjects, or assumptions that depend on shared memory.
+10. 指示の矛盾 / Conflicting instructions — different deadlines, formats, owners, or directions.
+
+Patterns found in anonymized PENCIL HR communication examples that should guide the check:
+- A message that only shares a document/link can be unclear if it does not state WHY it is being shared, WHAT the recipient should do, or whether it is simply information, a deliverable, or a review request.
+- 「面談までに」 may be too vague when the exact meeting time/deadline matters. Prefer an exact deadline if the sender knows it; otherwise leave a confirmation placeholder.
+- 「具体的に」 means clarifying 「いつまでに、何を、どうする」, not just adding more words.
+- A task is not necessarily complete when the sender finishes their part if approval/review is part of the completion condition. Make the reviewer/approval step explicit when relevant.
+- If a message is resent or corrected in a way that could look like a duplicate or mistake, explain the reason for the resend/edit.
+- Before acting on an ambiguous instruction, confirm the interpretation instead of inventing a new task, format, or deliverable.
+- If a company/team already uses an established format or process, do not assume the sender has authority to replace it. Flag the need to confirm any format/process change.
 
 Rules:
-- Do not decide who is right or wrong.
-- Separate observable or reported facts from interpretations.
-- Treat one employee's statements as reported claims, not verified facts.
-- Identify concerns or emotions without diagnosing or inferring ADHD, autism, anxiety, personality type, mental health conditions, or medical conditions.
-- Never recommend firing, discipline, hiring, promotion, compensation, or legal decisions.
-- If something is unknown, say it is unknown rather than inventing it.
-- Point out missing information and neutral questions HR could ask.
-- Human HR review is always required. Possible next steps must be neutral information-gathering or conversation-preparation steps for HR review.
-- Keep outputs concise and practical.
-- Respond in Japanese unless the input is primarily English.
-- If a category cannot be supported by the notes, return an empty array rather than inventing information.
+- Do NOT judge politeness, hierarchy, personality, competence, nationality, or intent.
+- Do NOT diagnose or infer ADHD, autism, mental-health conditions, personality type, or protected/sensitive traits.
+- Do NOT make hiring, firing, discipline, promotion, compensation, legal, or performance decisions.
+- Do NOT invent facts. Missing information must stay missing.
+- In the improved Japanese message, use 【要確認: ...】 for information that is needed but not present in the draft.
+- Keep the sender's original purpose and tone as much as possible. Improve clarity, not personality.
+- Respond in Japanese for explanations. If English output is requested, improved_en may be English; otherwise it must be an empty string.
 
-Output requirements:
-- Every item in facts must explicitly say it is from the notes or a person's report (for example, 「メモによると」「本人は〜と述べている」「〜は未確認」). Never rewrite a claim as an established event.
-- A person's diagnostic speculation is not a fact to investigate. Do not repeat the diagnostic label or ask questions seeking evidence for it; describe it only as an unsupported health-related assumption if relevant.
-- desired_outcomes may neutrally record what a person requested, but must state that prohibited personnel or legal decisions are not being endorsed or assessed.
-- Every questions_to_clarify item must be a neutral, practical question ending in a question mark. Ask what was observed, recorded, understood, or desired; do not write a task or a leading question.
-- possible_next_steps may only cover record checking, hearing relevant perspectives, clarifying needs/process, and preparation for human HR review.
-- possible_next_steps should be concise action candidates that help with the next conversation. Name the record, perspective, or conversation involved. Avoid vague phrases such as 「適切な対応」. Do not present candidates as mandatory instructions.`;
+Return ONLY valid JSON matching the provided schema. No markdown or code fences.`;
 
 const analysisSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
-    facts: { type: "array", items: { type: "string" } },
-    interpretations: { type: "array", items: { type: "string" } },
-    concerns: { type: "array", items: { type: "string" } },
-    missing_information: { type: "array", items: { type: "string" } },
-    questions_to_clarify: { type: "array", items: { type: "string" } },
-    desired_outcomes: { type: "array", items: { type: "string" } },
-    possible_next_steps: { type: "array", items: { type: "string" } },
+    clarity_score: { type: "integer", minimum: 0, maximum: 100 },
+    summary: { type: "string" },
+    items: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          label: { type: "string" },
+          status: { type: "string", enum: ["clear", "unclear", "missing"] },
+          note: { type: "string" },
+        },
+        required: ["label", "status", "note"],
+      },
+    },
+    risks: { type: "array", items: { type: "string" } },
+    questions: { type: "array", items: { type: "string" } },
+    improved_ja: { type: "string" },
+    improved_en: { type: "string" },
   },
-  required: [
-    "facts",
-    "interpretations",
-    "concerns",
-    "missing_information",
-    "questions_to_clarify",
-    "desired_outcomes",
-    "possible_next_steps",
-  ],
+  required: ["clarity_score", "summary", "items", "risks", "questions", "improved_ja", "improved_en"],
 } as const;
 
-type AnalysisKey = keyof typeof analysisSchema.properties;
+type Status = "clear" | "unclear" | "missing";
+type ContextItem = { label: string; status: Status; note: string };
+type Analysis = {
+  clarity_score: number;
+  summary: string;
+  items: ContextItem[];
+  risks: string[];
+  questions: string[];
+  improved_ja: string;
+  improved_en: string;
+};
 
-const analysisKeys = Object.keys(analysisSchema.properties) as AnalysisKey[];
-
-const diagnosisPattern = /ADHD|注意欠如|多動|自閉|autis|アスペルガー|不安障害|anxiety disorder|人格障害|性格タイプ|MBTI|精神疾患|精神障害|メンタルヘルス|発達障害|神経発達|うつ病|鬱病|双極性障害|統合失調症|PTSD|mental health|medical condition/i;
-const prohibitedDecisionPattern = /解雇|クビ|辞めさせ|退職させ|契約解除|懲戒|処分|罰する|警告処分|採用|雇用|雇入|昇進|昇格|降格|減給|報酬|給与|賃金|賞与|ボーナス|法的|法務|訴訟|告訴|弁護士|シフトから外す|\bfire\b|firing|dismiss|terminat|disciplin|\bhir(e|ing)\b|promot|demot|compensation|salary|legal action|lawsuit|lawyer/i;
-const vagueActionPattern = /適切な対応|必要な対応|何らかの対応|対応を提案/i;
-const reportedDecisionRequest = "相談者は特定の人事対応を求めている";
-const humanReviewDecisionRequest = `${reportedDecisionRequest}（要望の記録のみ。人間のHRによる確認と判断が必要で、AIは妥当性を判断・推奨しない）`;
-
-const expressedConcernMarkers: Array<[RegExp, string]> = [
-  [/混乱|confus/i, "相談者は混乱を表明している"],
-  [/ストレス|stress/i, "相談者はストレスを表明している"],
-  [/不安|anxious|anxiety/i, "相談者は不安を表明している"],
-  [/不公平|unfair/i, "相談者は不公平感を表明している"],
-  [/怒|angry|anger/i, "相談者は怒りを表明している"],
-  [/心配|worr/i, "相談者は心配を表明している"],
-  [/恐れ|怖|fear/i, "相談者は恐れを表明している"],
-];
-
-function normalizeQuestion(item: string) {
-  const question = item
-    .replace(/[。？！?!]+$/, "")
-    .replace(/確認してください$/, "確認できますか")
-    .replace(/教えてください$/, "教えていただけますか")
-    .replace(/説明してください$/, "説明していただけますか")
-    .replace(/を確認する$/, "を確認できますか")
-    .trim();
-
-  return `${question}？`;
+function normalizeStringArray(value: unknown, maxItems = 8) {
+  return Array.isArray(value)
+    ? [...new Set(value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean))].slice(0, maxItems)
+    : [];
 }
 
-function parseAnalysis(content: string, notes: string) {
+function parseAnalysis(content: string): Analysis {
   const parsed: unknown = JSON.parse(content);
-
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error("Ollama returned a non-object analysis.");
   }
 
   const record = parsed as Record<string, unknown>;
-  const analysis = Object.fromEntries(
-    analysisKeys.map((key) => {
-      const value = record[key];
-      if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
-        throw new Error(`Ollama returned an invalid ${key} field.`);
-      }
+  const rawScore = Number(record.clarity_score);
+  const items = Array.isArray(record.items)
+    ? record.items.flatMap((entry) => {
+        if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+        const item = entry as Record<string, unknown>;
+        const status: Status = item.status === "clear" || item.status === "unclear" || item.status === "missing"
+          ? item.status
+          : "missing";
+        const label = typeof item.label === "string" ? item.label.trim() : "";
+        const note = typeof item.note === "string" ? item.note.trim() : "";
+        return label ? [{ label, status, note }] : [];
+      }).slice(0, 12)
+    : [];
 
-      let safeItems = value.map((item) => item.trim()).filter(Boolean);
-
-      if (key === "facts") {
-        safeItems = safeItems
-          .filter((item) => !diagnosisPattern.test(item))
-          .map((item) =>
-            prohibitedDecisionPattern.test(item)
-              ? `メモ上の報告（未検証）：${reportedDecisionRequest}`
-              : `メモ上の報告（未検証）：${item}`
-          );
-      } else {
-        safeItems = safeItems.filter((item) => !diagnosisPattern.test(item));
-      }
-
-      safeItems = safeItems.filter((item) =>
-        expressedConcernMarkers.every(
-          ([pattern]) => !pattern.test(item) || pattern.test(notes)
-        )
-      );
-
-      if (["interpretations", "concerns", "missing_information", "questions_to_clarify", "possible_next_steps"].includes(key)) {
-        safeItems = safeItems.filter((item) => !prohibitedDecisionPattern.test(item));
-      }
-
-      if (key === "possible_next_steps") {
-        safeItems = safeItems.filter((item) => !vagueActionPattern.test(item));
-      }
-
-      if (key === "questions_to_clarify") {
-        safeItems = safeItems.map(normalizeQuestion);
-      }
-
-      if (key === "desired_outcomes") {
-        safeItems = safeItems.map((item) =>
-          prohibitedDecisionPattern.test(item)
-            ? humanReviewDecisionRequest
-            : item
-        );
-      }
-
-      return [key, [...new Set(safeItems)]];
-    })
-  );
-
-  if (prohibitedDecisionPattern.test(notes)) {
-    const typedAnalysis = analysis as Record<AnalysisKey, string[]>;
-    typedAnalysis.facts = [...new Set([
-      ...typedAnalysis.facts,
-      `メモ上の報告（未検証）：${reportedDecisionRequest}`,
-    ])];
-    typedAnalysis.desired_outcomes = [...new Set([
-      ...typedAnalysis.desired_outcomes,
-      humanReviewDecisionRequest,
-    ])];
-  }
-
-  const typedAnalysis = analysis as Record<AnalysisKey, string[]>;
-  const explicitlyExpressedConcerns = expressedConcernMarkers
-    .filter(([pattern]) => pattern.test(notes))
-    .map(([, concern]) => concern);
-  typedAnalysis.concerns = [...new Set([
-    ...typedAnalysis.concerns,
-    ...explicitlyExpressedConcerns,
-  ])];
-
-  return analysis;
+  return {
+    clarity_score: Number.isFinite(rawScore) ? Math.max(0, Math.min(100, Math.round(rawScore))) : 0,
+    summary: typeof record.summary === "string" ? record.summary.trim() : "",
+    items,
+    risks: normalizeStringArray(record.risks, 5),
+    questions: normalizeStringArray(record.questions, 5),
+    improved_ja: typeof record.improved_ja === "string" ? record.improved_ja.trim() : "",
+    improved_en: typeof record.improved_en === "string" ? record.improved_en.trim() : "",
+  };
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const notes = typeof body?.notes === "string" ? body.notes.trim() : "";
+    const message = typeof body?.message === "string" ? body.message.trim() : "";
+    const channel = ["chatwork", "backlog", "email", "other"].includes(body?.channel) ? body.channel : "other";
+    const withEnglish = Boolean(body?.withEnglish);
 
-    if (!notes) {
-      return NextResponse.json({ error: "相談内容を入力してください。" }, { status: 400 });
+    if (!message) {
+      return NextResponse.json({ error: "送信予定のメッセージを入力してください。" }, { status: 400 });
     }
 
-    if (notes.length > MAX_NOTES_LENGTH) {
-      return NextResponse.json(
-        { error: `入力は${MAX_NOTES_LENGTH.toLocaleString()}文字以内にしてください。` },
-        { status: 400 }
-      );
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return NextResponse.json({ error: `入力は${MAX_MESSAGE_LENGTH.toLocaleString()}文字以内にしてください。` }, { status: 400 });
     }
 
     let response: Response;
@@ -198,7 +149,7 @@ export async function POST(request: Request) {
             { role: "system", content: SYSTEM_PROMPT },
             {
               role: "user",
-              content: `次の匿名化された職場相談メモを整理してください。\n\n${notes}`,
+              content: `【送信先ツール】${channel}\n【英語版】${withEnglish ? "必要" : "不要"}\n\n【メッセージ下書き】\n${message}`,
             },
           ],
         }),
@@ -221,16 +172,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let ollamaResponse: unknown;
-    try {
-      ollamaResponse = await response.json();
-    } catch (error) {
-      console.error("Ollama returned invalid response JSON:", error);
-      return NextResponse.json(
-        { error: "ローカルAIから正しい形式の応答を取得できませんでした。もう一度お試しください。" },
-        { status: 502 }
-      );
-    }
+    const ollamaResponse: unknown = await response.json();
     const content =
       ollamaResponse &&
       typeof ollamaResponse === "object" &&
@@ -243,29 +185,21 @@ export async function POST(request: Request) {
         : "";
 
     if (!content) {
-      console.error("Ollama returned no message content.");
-      return NextResponse.json(
-        { error: "ローカルAIから正しい形式の応答を取得できませんでした。もう一度お試しください。" },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: "ローカルAIから正しい形式の応答を取得できませんでした。" }, { status: 502 });
     }
 
-    let analysis;
+    let analysis: Analysis;
     try {
-      analysis = parseAnalysis(content, notes);
+      analysis = parseAnalysis(content);
     } catch (error) {
-      console.error("Ollama returned invalid analysis JSON:", error);
-      return NextResponse.json(
-        { error: "ローカルAIから正しい形式の分析結果を取得できませんでした。もう一度お試しください。" },
-        { status: 502 }
-      );
+      console.error("Ollama returned invalid context-check JSON:", error);
+      return NextResponse.json({ error: "ローカルAIから正しい形式の分析結果を取得できませんでした。もう一度お試しください。" }, { status: 502 });
     }
+
+    if (!withEnglish) analysis.improved_en = "";
     return NextResponse.json({ analysis });
   } catch (error) {
-    console.error("HR Issue Organizer analysis failed:", error);
-    return NextResponse.json(
-      { error: "AI分析に失敗しました。入力内容を確認して、もう一度お試しください。" },
-      { status: 500 }
-    );
+    console.error("Context Bridge analysis failed:", error);
+    return NextResponse.json({ error: "共通理解チェックに失敗しました。入力内容を確認して、もう一度お試しください。" }, { status: 500 });
   }
 }
