@@ -1,8 +1,8 @@
-name: Prototype V0 CI
+name: PENCIL Bridge CI
 
 on:
   push:
-    branches: [prototype-v1]
+    branches: [prototype-v1, bridge-system-v1]
   pull_request:
     branches: [main]
 
@@ -18,9 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
