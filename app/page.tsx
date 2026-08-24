@@ -131,33 +131,31 @@ const DEMO_ISSUES: IssueInput[] = [
   },
 ];
 
-const SIGNAL_META: Record<SignalKind, { index: string; short: string }> = {
-  rework: { index: "01", short: "REWORK" },
-  contradiction: { index: "02", short: "NLI" },
-  off_record: { index: "03", short: "OFF-RECORD" },
-  cross_channel: { index: "04", short: "CROSS-CHANNEL" },
+const SIGNAL_META: Record<SignalKind, { code: string; short: string; tone: string }> = {
+  rework: { code: "01", short: "手戻り", tone: "red" },
+  contradiction: { code: "02", short: "指示の矛盾", tone: "red" },
+  off_record: { code: "03", short: "記録外の参照", tone: "amber" },
+  cross_channel: { code: "04", short: "チャネル間の不整合", tone: "red" },
 };
 
 const SOURCE_LABEL: Record<Source, string> = {
-  meeting: "Meeting minutes",
+  meeting: "会議議事録",
   backlog: "Backlog",
   chatwork: "Chatwork",
 };
 
-function SignalEvidence({ entries }: { entries: LogEntry[] }) {
-  return (
-    <div className="evidenceList">
-      {entries.map((entry) => (
-        <div className={`evidenceRow source-${entry.source}`} key={entry.id}>
-          <div className="sourceMeta">
-            <span>{SOURCE_LABEL[entry.source]}</span>
-            <small>{entry.date} · {entry.authorRole}</small>
-          </div>
-          <p>“{entry.text}”</p>
-        </div>
-      ))}
-    </div>
-  );
+const ROLE_LABEL: Record<string, string> = {
+  "Final reviewer": "最終確認者",
+  "Intermediate reviewer": "中間確認者",
+  Worker: "作業担当",
+};
+
+function issueTimeline(issueId: string) {
+  return DEMO_ISSUES.find((issue) => issue.issueId === issueId)?.entries ?? [];
+}
+
+function flaggedEntryIds(signals: Signal[]) {
+  return new Set(signals.flatMap((signal) => signal.evidence.map((entry) => entry.id)));
 }
 
 export default function Home() {
@@ -209,183 +207,216 @@ export default function Home() {
   }
 
   return (
-    <main className="appShell">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brandMark" aria-hidden="true" />
-          <div>
-            <strong>PENCIL Bridge</strong>
-            <small>Shared Understanding Detection System</small>
-          </div>
+    <main className="pageShell">
+      <header className="siteHeader">
+        <div className="wordmark" aria-label="PENCIL Bridge">
+          <span className="pencilRule" aria-hidden="true" />
+          <strong>PENCIL<span>.</span></strong>
+          <i aria-hidden="true" />
+          <p>People Bridge</p>
         </div>
-        <div className="accessBadge">
-          <span aria-hidden="true">●</span>
-          HR-ONLY CONCEPT · FICTIONAL DATA
+        <div className="headerMeta">
+          <span>HR INTERNAL</span>
+          <span>WEEK 34</span>
+          <b>構想検証用・架空データ</b>
         </div>
       </header>
 
-      <section className="hero">
-        <div className="heroCopy">
-          <span className="eyebrow">FROM TRANSLATION TO SHARED UNDERSTANDING</span>
-          <h1>伝わったはずを、<br /><em>確認できる記録へ。</em></h1>
-          <p>
-            Backlog、Chatwork、会議議事録を課題単位で照合し、共有理解が失われた可能性のある箇所だけをHRに届けます。
-          </p>
+      <section className="intro">
+        <div>
+          <p className="sectionLabel">SHARED UNDERSTANDING REPORT</p>
+          <h1>成果物の履歴から、<br />認識のずれを見つける。</h1>
         </div>
-        <div className="principleCard">
-          <span>DESIGN PRINCIPLE</span>
-          <strong>AIは問題を断定しない。<br />HRが確認すべき場所を絞る。</strong>
-          <p>No emotion scores · No individual rankings · Human confirmation required</p>
+        <div className="introNote">
+          <p>Backlog、Chatwork、会議議事録を課題単位で照合し、HRが確認すべき箇所だけを週次で届けます。</p>
+          <small>社員に新しい入力を求めない。個人を評価しない。AIだけで結論を出さない。</small>
         </div>
       </section>
 
-      <section className="systemStrip" aria-label="System flow">
-        <div><span>01</span><strong>Collect</strong><small>Existing logs only</small></div>
-        <i aria-hidden="true">→</i>
-        <div><span>02</span><strong>Detect</strong><small>Four structural signals</small></div>
-        <i aria-hidden="true">→</i>
-        <div><span>03</span><strong>Narrow</strong><small>Items for HR review</small></div>
-        <i aria-hidden="true">→</i>
-        <div><span>04</span><strong>Interview</strong><small>Human conversation</small></div>
-      </section>
+      <ol className="flow" aria-label="週次レポート作成の流れ">
+        <li><span>01</span><div><strong>既存ログを取得</strong><small>現場の追加操作なし</small></div></li>
+        <li><span>02</span><div><strong>課題単位に整理</strong><small>個人名は役割に置換</small></div></li>
+        <li><span>03</span><div><strong>構造的なずれを検知</strong><small>閾値超過のみ抽出</small></div></li>
+        <li><span>04</span><div><strong>HRが確認</strong><small>Notionへ週次出力</small></div></li>
+      </ol>
 
-      <section className="workspace">
-        <aside className="controlPanel">
-          <div className="panelHeading">
-            <span>WEEKLY BATCH</span>
-            <h2>分析対象</h2>
-            <p>このデモでは、実データの代わりに匿名化された架空ログを使用します。</p>
+      <section className="reportFrame" aria-label="PENCIL Bridge weekly report">
+        <div className="reportBar">
+          <div>
+            <span className="liveDot" aria-hidden="true" />
+            <strong>PENCIL Bridge / 週次確認レポート</strong>
           </div>
+          <p>2026.08.17–08.23&nbsp;&nbsp;｜&nbsp;&nbsp;対象課題 3件</p>
+        </div>
 
-          <div className="sourceCards">
-            <div className="sourceCard"><span className="sourceDot backlog" /><div><strong>Backlog</strong><small>{sourceCounts.backlog} records · demo adapter</small></div></div>
-            <div className="sourceCard"><span className="sourceDot chatwork" /><div><strong>Chatwork</strong><small>{sourceCounts.chatwork} records · demo adapter</small></div></div>
-            <div className="sourceCard"><span className="sourceDot meeting" /><div><strong>Meeting minutes</strong><small>{sourceCounts.meeting} decisions · demo adapter</small></div></div>
-          </div>
-
-          <dl className="batchFacts">
-            <div><dt>Anchor</dt><dd>Backlog issue</dd></div>
-            <div><dt>Scope</dt><dd>3 fictional issues</dd></div>
-            <div><dt>Identity</dt><dd>Role labels only</dd></div>
-            <div><dt>Frontline work</dt><dd>Zero</dd></div>
-          </dl>
-
-          <button className="runButton" type="button" onClick={runAnalysis} disabled={loading}>
-            <span>{loading ? "ローカル分析中…" : "今週のログを分析"}</span>
-            <b aria-hidden="true">→</b>
-          </button>
-          <p className="controlNote">この操作画面はコンセプト検証用です。実運用では週次バッチで自動実行し、HR専用Notionページに出力します。</p>
-          {error && <p className="error" role="alert">{error}</p>}
-        </aside>
-
-        <section className="reportPanel">
-          <div className="reportHeader">
-            <div>
-              <span className="eyebrow">NOTION WEEKLY PAGE PREVIEW</span>
-              <h2>今週の確認候補</h2>
+        <div className="reportLayout">
+          <aside className="batchPanel">
+            <div className="sideHeading">
+              <span>WEEKLY BATCH</span>
+              <h2>分析対象</h2>
+              <p>この画面では、説明用の架空ログを使って週次処理を再現します。</p>
             </div>
-            {report && (
-              <div className="reportMode">
-                <span className={report.mode === "local-nli" ? "online" : "concept"} />
-                {report.mode === "local-nli" ? "LOCAL NLI" : "CONCEPT DEMO"}
+
+            <div className="sourceList">
+              <div><span className="sourceIcon backlog">B</span><p><strong>Backlog</strong><small>{sourceCounts.backlog} records</small></p><b>DEMO</b></div>
+              <div><span className="sourceIcon chatwork">C</span><p><strong>Chatwork</strong><small>{sourceCounts.chatwork} records</small></p><b>DEMO</b></div>
+              <div><span className="sourceIcon meeting">M</span><p><strong>会議議事録</strong><small>{sourceCounts.meeting} decisions</small></p><b>DEMO</b></div>
+            </div>
+
+            <dl className="batchDetails">
+              <div><dt>集約単位</dt><dd>Backlog課題</dd></div>
+              <div><dt>対象期間</dt><dd>7日間</dd></div>
+              <div><dt>個人名</dt><dd>保持しない</dd></div>
+              <div><dt>社員の入力</dt><dd>0件</dd></div>
+            </dl>
+
+            <button className="primaryButton" type="button" onClick={runAnalysis} disabled={loading}>
+              <span>{loading ? "照合しています…" : report ? "もう一度分析する" : "今週のログを分析"}</span>
+              <b aria-hidden="true">→</b>
+            </button>
+            <p className="sideNote">実運用ではこの処理を週次で自動実行し、HR専用Notionページに出力します。</p>
+            {error && <p className="errorMessage" role="alert">{error}</p>}
+          </aside>
+
+          <div className="reportBody">
+            <div className="reportHeading">
+              <div>
+                <p className="sectionLabel">HR REVIEW QUEUE</p>
+                <h2>今週の確認候補</h2>
               </div>
+              <span className="reviewPolicy">検知は結論ではありません</span>
+            </div>
+
+            {!report ? (
+              <div className={`emptyState ${loading ? "isLoading" : ""}`}>
+                <div className="emptyWeek">34</div>
+                <div className="emptyCopy">
+                  <h3>{loading ? "課題ごとの判断履歴を照合中" : "週次レポートを作成します"}</h3>
+                  <p>{loading ? "修正回数、指示の矛盾、記録外参照、チャネル間の整合性を確認しています。" : "左のボタンを押すと、3件の架空課題からHRの確認候補を抽出します。"}</p>
+                </div>
+                <div className="emptyLines" aria-hidden="true"><i /><i /><i /></div>
+              </div>
+            ) : (
+              <>
+                <div className="summaryRow">
+                  <div className="summaryItem alert"><strong>{report.results.length}</strong><span>要確認</span></div>
+                  <div className="summaryItem"><strong>{DEMO_ISSUES.length}</strong><span>解析した課題</span></div>
+                  <div className="summaryItem"><strong>{report.withinThresholdCount}</strong><span>通常範囲</span></div>
+                  <div className="summaryItem"><strong>0</strong><span>社員の入力作業</span></div>
+                  <p>通常範囲の課題は表示せず、確認が必要な候補だけを残しています。</p>
+                </div>
+
+                <div className="caseList">
+                  {report.results.map((issue, issueIndex) => {
+                    const isFalsePositive = falsePositives.has(issue.issueId);
+                    const isQueued = interviewQueue.has(issue.issueId);
+                    const evidenceIds = flaggedEntryIds(issue.signals);
+                    const timeline = issueTimeline(issue.issueId);
+                    const reworkWidth = `${Math.min(100, (issue.reworkCount / 6) * 100)}%`;
+
+                    return (
+                      <article className={`caseCard ${isFalsePositive ? "dismissed" : ""}`} key={issue.issueId}>
+                        <header className="caseHeader">
+                          <div className="caseIndex">{String(issueIndex + 1).padStart(2, "0")}</div>
+                          <div className="caseTitle">
+                            <span>{issue.issueId}</span>
+                            <h3>{issue.title}</h3>
+                          </div>
+                          <div className="caseStatus">{isFalsePositive ? "誤検知として記録" : "HR確認待ち"}</div>
+                        </header>
+
+                        <div className="caseContent">
+                          <section className="findingColumn">
+                            <p className="columnLabel">検知したシグナル</p>
+                            <div className="signalList">
+                              {issue.signals.map((signal, signalIndex) => {
+                                const meta = SIGNAL_META[signal.kind];
+                                return (
+                                  <div className={`signalItem tone-${meta.tone}`} key={`${issue.issueId}-${signal.kind}-${signalIndex}`}>
+                                    <span>{meta.code}</span>
+                                    <div>
+                                      <small>{meta.short}</small>
+                                      <strong>{signal.label}</strong>
+                                      <p>{signal.summary}</p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {issue.reworkCount > 0 && (
+                              <div className="reworkMetric">
+                                <div><span>手戻り</span><strong>{issue.reworkCount}回</strong></div>
+                                <div className="metricTrack"><i style={{ width: reworkWidth }} /><b style={{ left: `${(issue.departmentAverage / 6) * 100}%` }} /></div>
+                                <small>部署平均 {issue.departmentAverage.toFixed(1)}回</small>
+                              </div>
+                            )}
+                          </section>
+
+                          <section className="timelineColumn">
+                            <p className="columnLabel">判断履歴</p>
+                            <div className="timeline">
+                              {timeline.map((entry) => {
+                                const isEvidence = evidenceIds.has(entry.id);
+                                return (
+                                  <div className={`timelineEntry ${isEvidence ? "isEvidence" : ""}`} key={entry.id}>
+                                    <span className="timelineDot" aria-hidden="true" />
+                                    <div className="timelineMeta">
+                                      <span className={`sourceName ${entry.source}`}>{SOURCE_LABEL[entry.source]}</span>
+                                      <small>{entry.date}・{ROLE_LABEL[entry.authorRole] || entry.authorRole}</small>
+                                    </div>
+                                    <p>{entry.text}</p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </section>
+                        </div>
+
+                        <div className="interviewPrompt">
+                          <div><span>HR</span><small>面談で確かめる質問</small></div>
+                          <p>「{issue.suggestedQuestion}」</p>
+                        </div>
+
+                        <footer className="caseActions">
+                          <p>人事の確認結果は検知精度の改善に利用します。</p>
+                          <div>
+                            <button className={isQueued ? "selected" : ""} type="button" onClick={() => toggle(setInterviewQueue, issue.issueId)} aria-pressed={isQueued}>
+                              {isQueued ? "面談メモに追加済み" : "面談メモに追加"}
+                            </button>
+                            <button className={`secondary ${isFalsePositive ? "selected" : ""}`} type="button" onClick={() => toggle(setFalsePositives, issue.issueId)} aria-pressed={isFalsePositive}>
+                              {isFalsePositive ? "記録を取り消す" : "誤検知として記録"}
+                            </button>
+                          </div>
+                        </footer>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                <p className="thresholdNote">この週、通常範囲の{report.withinThresholdCount}件は表示していません。問題が見つからない週は、確認候補を出しません。</p>
+              </>
             )}
           </div>
-
-          {!report ? (
-            <div className="emptyReport">
-              <span>WEEK 34</span>
-              <h3>{loading ? "3つの課題を照合しています" : "まだ分析されていません"}</h3>
-              <p>{loading ? "修正回数、指示の矛盾、記録外参照、チャネル間整合性を確認中です。" : "左のボタンを押すと、架空の週間ログから確認候補を生成します。"}</p>
-            </div>
-          ) : (
-            <>
-              <div className="reportSummary">
-                <div><strong>{report.results.length}</strong><span>Items to review</span></div>
-                <div><strong>{report.withinThresholdCount}</strong><span>Within threshold</span></div>
-                <p>通常範囲の課題は表示しません。HRの限られた時間を確認候補に集中させます。</p>
-              </div>
-
-              <div className="issueList">
-                {report.results.map((issue, issueIndex) => {
-                  const isFalsePositive = falsePositives.has(issue.issueId);
-                  const isQueued = interviewQueue.has(issue.issueId);
-                  return (
-                    <article className={`issueCard ${isFalsePositive ? "dismissed" : ""}`} key={issue.issueId}>
-                      <div className="issueHeader">
-                        <span className="issueNumber">{String(issueIndex + 1).padStart(2, "0")}</span>
-                        <div>
-                          <small>{issue.issueId}</small>
-                          <h3>{issue.title}</h3>
-                        </div>
-                        <span className="reviewTag">CHECK, NOT CONCLUSION</span>
-                      </div>
-
-                      <div className="signalStack">
-                        {issue.signals.map((signal, signalIndex) => {
-                          const meta = SIGNAL_META[signal.kind];
-                          return (
-                            <section className="signalBlock" key={`${issue.issueId}-${signal.kind}-${signalIndex}`}>
-                              <div className="signalTitle">
-                                <span>{meta.index}</span>
-                                <div><small>{meta.short}</small><strong>{signal.label}</strong></div>
-                              </div>
-                              <p className="signalSummary">{signal.summary}</p>
-                              <SignalEvidence entries={signal.evidence} />
-                            </section>
-                          );
-                        })}
-                      </div>
-
-                      <div className="questionBox">
-                        <span>SUGGESTED INTERVIEW QUESTION</span>
-                        <p>「{issue.suggestedQuestion}」</p>
-                      </div>
-
-                      <div className="issueActions">
-                        <button
-                          className={isQueued ? "selected" : ""}
-                          type="button"
-                          onClick={() => toggle(setInterviewQueue, issue.issueId)}
-                          aria-pressed={isQueued}
-                        >
-                          {isQueued ? "面談メモに追加済み ✓" : "面談メモに追加"}
-                        </button>
-                        <button
-                          className={`secondary ${isFalsePositive ? "selected" : ""}`}
-                          type="button"
-                          onClick={() => toggle(setFalsePositives, issue.issueId)}
-                          aria-pressed={isFalsePositive}
-                        >
-                          {isFalsePositive ? "誤検知を取消" : "誤検知として記録"}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </section>
-      </section>
-
-      <section className="methodSection">
-        <div className="methodIntro">
-          <span className="eyebrow">EXPLAINABLE BY DESIGN</span>
-          <h2>感情ではなく、<br />構造的なシグナルを見る。</h2>
-          <p>個人スコアや感情分析は行いません。すべて課題・成果物単位で扱い、最終確認はHRが行います。</p>
-        </div>
-        <div className="methodGrid">
-          <div><span>01</span><strong>修正回数</strong><p>LLMを使わず、差し戻しイベントを集計。</p></div>
-          <div><span>02</span><strong>指示の矛盾</strong><p>NLIで同一課題内の指示関係を比較。</p></div>
-          <div><span>03</span><strong>記録外参照</strong><p>「口頭で確認」など、参照先の不在を検出。</p></div>
-          <div className="featured"><span>04</span><strong>チャネル間整合性</strong><p>会議の決定と実行フェーズの指示を照合。</p></div>
         </div>
       </section>
 
-      <footer>
-        <strong>PENCIL Bridge · Concept Prototype v1.0</strong>
-        <p>Fictional data only. Real API connections, consent, privacy review, and APPI compliance are required before any internal pilot.</p>
+      <section className="principles">
+        <div className="principleLead">
+          <p className="sectionLabel">OPERATING PRINCIPLES</p>
+          <h2>監視ではなく、<br />対話の準備に使う。</h2>
+        </div>
+        <div className="principleGrid">
+          <div><span>01</span><strong>成果物単位</strong><p>個人別のスコアやランキングを作らない。</p></div>
+          <div><span>02</span><strong>説明できる根拠</strong><p>検知には必ず元の記録と判断履歴を添える。</p></div>
+          <div><span>03</span><strong>Human in the loop</strong><p>AIは候補を絞り、最終判断はHRが行う。</p></div>
+          <div><span>04</span><strong>既存業務の中で完結</strong><p>現場の新しい入力や専用画面を増やさない。</p></div>
+        </div>
+      </section>
+
+      <footer className="pageFooter">
+        <strong>PENCIL Bridge / Concept Prototype v1.1</strong>
+        <p>画面内の数値、課題名、発言はすべて説明用の架空データです。実証前にAPI接続、同意設計、権限管理、個人情報保護レビューが必要です。</p>
       </footer>
     </main>
   );
