@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "PENCIL People Bridge",
-  description: "Local AI prototype for clearer HR issue organization",
+  title: "PENCIL Context Bridge",
+  description: "Local AI pre-send context check for clearer shared understanding in workplace communication",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
