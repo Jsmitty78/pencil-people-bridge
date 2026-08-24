@@ -41,7 +41,7 @@ type IssueResult = {
 type DetectionResponse = {
   results: IssueResult[];
   withinThresholdCount: number;
-  mode: "local-nli" | "demo-fallback";
+  mode: "local-nli" | "concept-demo";
   generatedAt: string;
 };
 
@@ -220,7 +220,7 @@ export default function Home() {
         </div>
         <div className="accessBadge">
           <span aria-hidden="true">●</span>
-          HR ONLY · FICTIONAL DEMO DATA
+          HR-ONLY CONCEPT · FICTIONAL DATA
         </div>
       </header>
 
@@ -258,9 +258,9 @@ export default function Home() {
           </div>
 
           <div className="sourceCards">
-            <div className="sourceCard"><span className="sourceDot backlog" /><div><strong>Backlog</strong><small>{sourceCounts.backlog} records · connected</small></div></div>
-            <div className="sourceCard"><span className="sourceDot chatwork" /><div><strong>Chatwork</strong><small>{sourceCounts.chatwork} records · connected</small></div></div>
-            <div className="sourceCard"><span className="sourceDot meeting" /><div><strong>Meeting minutes</strong><small>{sourceCounts.meeting} decisions · connected</small></div></div>
+            <div className="sourceCard"><span className="sourceDot backlog" /><div><strong>Backlog</strong><small>{sourceCounts.backlog} records · demo adapter</small></div></div>
+            <div className="sourceCard"><span className="sourceDot chatwork" /><div><strong>Chatwork</strong><small>{sourceCounts.chatwork} records · demo adapter</small></div></div>
+            <div className="sourceCard"><span className="sourceDot meeting" /><div><strong>Meeting minutes</strong><small>{sourceCounts.meeting} decisions · demo adapter</small></div></div>
           </div>
 
           <dl className="batchFacts">
@@ -274,20 +274,20 @@ export default function Home() {
             <span>{loading ? "ローカル分析中…" : "今週のログを分析"}</span>
             <b aria-hidden="true">→</b>
           </button>
-          <p className="controlNote">実運用では週次バッチで自動実行し、結果をNotionに出力します。</p>
+          <p className="controlNote">この操作画面はコンセプト検証用です。実運用では週次バッチで自動実行し、HR専用Notionページに出力します。</p>
           {error && <p className="error" role="alert">{error}</p>}
         </aside>
 
         <section className="reportPanel">
           <div className="reportHeader">
             <div>
-              <span className="eyebrow">HR WEEKLY REVIEW</span>
+              <span className="eyebrow">NOTION WEEKLY PAGE PREVIEW</span>
               <h2>今週の確認候補</h2>
             </div>
             {report && (
               <div className="reportMode">
-                <span className={report.mode === "local-nli" ? "online" : "fallback"} />
-                {report.mode === "local-nli" ? "LOCAL NLI" : "DEMO FALLBACK"}
+                <span className={report.mode === "local-nli" ? "online" : "concept"} />
+                {report.mode === "local-nli" ? "LOCAL NLI" : "CONCEPT DEMO"}
               </div>
             )}
           </div>
@@ -347,6 +347,7 @@ export default function Home() {
                           className={isQueued ? "selected" : ""}
                           type="button"
                           onClick={() => toggle(setInterviewQueue, issue.issueId)}
+                          aria-pressed={isQueued}
                         >
                           {isQueued ? "面談メモに追加済み ✓" : "面談メモに追加"}
                         </button>
@@ -354,6 +355,7 @@ export default function Home() {
                           className={`secondary ${isFalsePositive ? "selected" : ""}`}
                           type="button"
                           onClick={() => toggle(setFalsePositives, issue.issueId)}
+                          aria-pressed={isFalsePositive}
                         >
                           {isFalsePositive ? "誤検知を取消" : "誤検知として記録"}
                         </button>
