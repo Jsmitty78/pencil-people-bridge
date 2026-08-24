@@ -54,12 +54,12 @@ npm install
 ollama pull qwen3:4b
 ollama serve
 
-npm run dev
+ENABLE_LOCAL_NLI=true npm run dev
 ```
 
 Open `http://localhost:3000` and select **今週のログを分析**.
 
-If Ollama is unavailable, the prototype uses clearly labeled deterministic fallback rules so the fictional demo remains usable.
+For the most reliable boss demonstration, run `npm run dev` without `ENABLE_LOCAL_NLI`. The prototype then uses clearly labeled deterministic concept-demo rules. Enable local NLI only when Ollama has already been tested on the presentation laptop.
 
 ## Presentation framing
 
