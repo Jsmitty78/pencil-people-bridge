@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type Channel = "chatwork" | "backlog" | "email" | "other";
 type Status = "clear" | "unclear" | "missing";
@@ -38,28 +38,28 @@ const CHANNEL_LABELS: Record<Channel, string> = {
 
 const SAMPLES: Sample[] = [
   {
-    title: "HR実例（匿名化）",
+    title: "HR実例 1",
     hint: "目的・依頼内容が抜けた共有",
     channel: "chatwork",
     source: "hr",
     text: "▼3ヶ月振り返りシートです。\n（共有リンク）",
   },
   {
-    title: "依頼の伝え方・期限",
-    hint: "HR実例（匿名化）／期限の粒度",
+    title: "HR実例 2",
+    hint: "期限の粒度があいまい",
     channel: "chatwork",
     source: "hr",
     text: "シートを記入しました。\n（共有リンク）\n面談まで記入してください",
   },
   {
-    title: "あいまいな表現",
-    hint: "『いつもの感じで』『例のやつ』",
+    title: "あいまい表現",
+    hint: "『いつもの感じで』『例の件』",
     channel: "chatwork",
     text: "お疲れさまです。\n例の資料、いつもの感じで直しておいてもらえますか？\n前回と同じ流れで大丈夫です。よろしくお願いします。",
   },
   {
-    title: "期限・担当が不明",
-    hint: "誰が・いつまでかが書かれていない",
+    title: "期限・担当不明",
+    hint: "誰が・いつまでか不明",
     channel: "backlog",
     text: "架空プロジェクトAの見積もり、そろそろ更新が必要そうです。\n新しい要件が増えたので反映をお願いします。\n完了したら共有してください。",
   },
@@ -70,7 +70,7 @@ const SAMPLES: Sample[] = [
     text: "架空商事さま向け提案書について。\n田中部長からは『来週の会議までに簡易版で出して』と言われていますが、佐藤課長からは『詳細版を今日中に』と聞いています。\nとりあえず進めておきます。",
   },
   {
-    title: "背景が抜けている",
+    title: "背景不足",
     hint: "目的・経緯が共有されていない",
     channel: "chatwork",
     text: "架空チームBの定例、来週から水曜に変更します。\nアジェンダは前回のものを流用でお願いします。",
@@ -78,28 +78,41 @@ const SAMPLES: Sample[] = [
 ];
 
 const STATUS_LABELS: Record<Status, string> = {
-  clear: "OK",
-  unclear: "あいまい",
+  clear: "明確",
+  unclear: "要確認",
   missing: "不足",
 };
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+function CopyButton({ text, label, primary = false }: { text: string; label: string; primary?: boolean }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
+      window.setTimeout(() => setCopied(false), 1600);
     } catch {
       setCopied(false);
     }
   }
 
   return (
-    <button className="copyButton" type="button" onClick={copy} disabled={!text}>
-      {copied ? "コピーしました" : label}
+    <button className={`copyBtn ${primary ? "primary" : ""}`} type="button" onClick={copy} disabled={!text}>
+      <span className="copyIcon" aria-hidden="true">{copied ? "✓" : "⧉"}</span>
+      {copied ? "コピー済み" : label}
     </button>
+  );
+}
+
+function ScoreRing({ score }: { score: number }) {
+  const safe = Math.max(0, Math.min(100, score));
+  return (
+    <div className="scoreRing" style={{ "--score": `${safe * 3.6}deg` } as React.CSSProperties}>
+      <div className="scoreRingInner">
+        <strong>{safe}</strong>
+        <span>/ 100</span>
+      </div>
+    </div>
   );
 }
 
@@ -110,6 +123,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<ContextCheckResult | null>(null);
+  const [activeTopTab, setActiveTopTab] = useState<"compose" | "check" | "rewrite">("compose");
+
+  const warningCount = useMemo(
+    () => result?.items.filter((item) => item.status !== "clear").length ?? 0,
+    [result],
+  );
 
   async function runCheck() {
     if (!message.trim() || loading) return;
@@ -117,6 +136,7 @@ export default function Home() {
     setLoading(true);
     setError("");
     setResult(null);
+    setActiveTopTab("check");
 
     try {
       const response = await fetch("/api/analyze", {
@@ -129,212 +149,244 @@ export default function Home() {
       if (!response.ok) throw new Error(data.error || "チェックに失敗しました。");
       if (!data.analysis) throw new Error("分析結果を取得できませんでした。");
       setResult(data.analysis as ContextCheckResult);
+      setActiveTopTab("rewrite");
     } catch (err) {
       setError(err instanceof Error ? err.message : "チェックに失敗しました。");
+      setActiveTopTab("compose");
     } finally {
       setLoading(false);
     }
   }
 
+  function loadSample(sample: Sample) {
+    setMessage(sample.text);
+    setChannel(sample.channel);
+    setResult(null);
+    setError("");
+    setActiveTopTab("compose");
+  }
+
   return (
-    <main className="contextPage">
-      <header className="contextHeader">
-        <div className="brandLockup">
-          <span className="brandName">PENCIL<span>.</span></span>
-          <span className="productName">Context Bridge</span>
-        </div>
-        <div className="localStatus">
-          <span className="statusDot" aria-hidden="true" />
-          <div>
-            <strong>Local AI</strong>
-            <span>Ollama · qwen3:4b</span>
+    <div className="shell">
+      <aside className="brandRail" aria-label="PENCIL brand rail">
+        <div className="railLogo">PENCIL<span>.</span></div>
+        <div className="railMark">CB</div>
+        <div className="railBottom">AI</div>
+      </aside>
+
+      <div className="appFrame">
+        <header className="topBar">
+          <div className="topTitle">
+            <strong>PENCIL Context Bridge</strong>
+            <span>送信前コミュニケーション支援</span>
           </div>
-          <small>No external API</small>
-        </div>
-      </header>
-
-      <section className="hero">
-        <div className="heroRule" aria-hidden="true" />
-        <div>
-          <span className="eyebrow">PRE-SEND CONTEXT CHECK</span>
-          <h1>送信前に、<br /><span>共通理解をチェック。</span></h1>
-        </div>
-        <div className="heroCopy">
-          <p>情報は伝わっている。でも、共通理解として残っていない。</p>
-          <strong>翻訳から、共通理解へ。</strong>
-          <p className="small">Chatwork・Backlog・メールに送る前のメッセージを、目的・背景・依頼内容・担当・期限などの観点から確認します。</p>
-        </div>
-      </section>
-
-      <section className="privacyNotice">
-        <strong>ANONYMIZED / FICTIONAL INPUTS ONLY</strong>
-        <p>実在の顧客名・従業員名・機密情報は入力しないでください。入力内容は保存されません。AIは人物評価・診断・人事判断を行いません。</p>
-      </section>
-
-      <section className="workbench">
-        <div className="sectionHeader">
-          <div>
-            <span className="sectionNumber">01</span>
-            <span className="sectionEyebrow">DRAFT MESSAGE</span>
-            <h2>送信予定のメッセージ</h2>
+          <nav className="topTabs" aria-label="workflow tabs">
+            <button className={activeTopTab === "compose" ? "active" : ""} onClick={() => setActiveTopTab("compose")} type="button">
+              <span>01</span> メッセージ作成
+            </button>
+            <button className={activeTopTab === "check" ? "active" : ""} onClick={() => setActiveTopTab("check")} type="button">
+              <span>02</span> コンテキストチェック
+            </button>
+            <button className={activeTopTab === "rewrite" ? "active" : ""} onClick={() => setActiveTopTab("rewrite")} type="button">
+              <span>03</span> AI提案
+            </button>
+          </nav>
+          <div className="aiStatus">
+            <span className="liveDot" aria-hidden="true" />
+            <div><strong>LOCAL AI</strong><small>Ollama · qwen3:4b</small></div>
           </div>
-        </div>
+        </header>
 
-        <div className="samplesBlock">
-          <div className="samplesTitle">
-            <strong>サンプルで試す</strong>
-            <span>架空・匿名化済み</span>
-          </div>
-          <div className="sampleGrid">
-            {SAMPLES.map((sample) => (
-              <button
-                key={sample.title}
-                className={`sampleCard ${sample.source === "hr" ? "hrSample" : ""}`}
-                type="button"
-                onClick={() => {
-                  setMessage(sample.text);
-                  setChannel(sample.channel);
-                  setResult(null);
-                  setError("");
-                }}
-              >
-                <span className="sampleTitleRow">
-                  <strong>{sample.title}</strong>
-                  {sample.source === "hr" && <em>匿名化実例</em>}
-                </span>
-                <small>{sample.hint}</small>
-              </button>
-            ))}
-          </div>
-          <p className="sampleNote">「匿名化実例」は、HRからプロトタイプ検証用に提供されたコミュニケーション記録を、個人や固有情報が分からない形に短縮したものです。</p>
-        </div>
-
-        <label className="draftLabel" htmlFor="message-draft">メッセージ下書き</label>
-        <textarea
-          id="message-draft"
-          className="draftTextarea"
-          value={message}
-          maxLength={6000}
-          onChange={(event) => setMessage(event.target.value)}
-          placeholder="例：架空プロジェクトAの資料、例の感じで直しておいてください。"
-        />
-        <div className="charCount">{message.length.toLocaleString()} / 6,000</div>
-
-        <div className="controlsRow">
-          <div className="channelButtons" role="group" aria-label="送信先ツール">
-            {(Object.keys(CHANNEL_LABELS) as Channel[]).map((key) => (
-              <button
-                key={key}
-                type="button"
-                className={channel === key ? "active" : ""}
-                aria-pressed={channel === key}
-                onClick={() => setChannel(key)}
-              >
-                {CHANNEL_LABELS[key]}
-              </button>
-            ))}
-          </div>
-          <label className="englishToggle">
-            <input
-              type="checkbox"
-              checked={withEnglish}
-              onChange={(event) => setWithEnglish(event.target.checked)}
-            />
-            <span>英語版も作成</span>
-          </label>
-        </div>
-
-        <button className="primaryButton" type="button" onClick={runCheck} disabled={!message.trim() || loading}>
-          {loading ? "チェック中…" : "共通理解をチェック"}
-        </button>
-        {error && <p className="errorMessage">{error}</p>}
-      </section>
-
-      {result && (
-        <section className="resultsArea">
-          <div className="sectionHeader resultHeader">
-            <div>
-              <span className="sectionNumber">02</span>
-              <span className="sectionEyebrow">CONTEXT REVIEW</span>
-              <h2>共通理解チェック結果</h2>
+        <main className="dashboard">
+          <section className="panel composerPanel">
+            <div className="panelHeader">
+              <div>
+                <span className="panelKicker">MESSAGE COMPOSER</span>
+                <h1>送信前メッセージ</h1>
+              </div>
+              <span className="privacyPill">匿名・架空データのみ</span>
             </div>
-            <div className="scoreCircle" aria-label={`共通理解スコア ${result.clarity_score}点`}>
-              <strong>{result.clarity_score}</strong>
-              <span>/ 100</span>
-            </div>
-          </div>
 
-          <p className="summaryText">{result.summary}</p>
-
-          <div className="checklist">
-            {result.items.map((item, index) => (
-              <div className="checkRow" key={`${item.label}-${index}`}>
-                <span className={`statusBadge ${item.status}`}>{STATUS_LABELS[item.status]}</span>
-                <div>
-                  <strong>{item.label}</strong>
-                  <p>{item.note}</p>
+            <div className="composerMetaRow">
+              <div className="fieldGroup compactField">
+                <label>送信先</label>
+                <div className="channelTabs">
+                  {(Object.keys(CHANNEL_LABELS) as Channel[]).map((key) => (
+                    <button
+                      type="button"
+                      key={key}
+                      className={channel === key ? "active" : ""}
+                      onClick={() => setChannel(key)}
+                    >
+                      {CHANNEL_LABELS[key]}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
 
-          {(result.risks.length > 0 || result.questions.length > 0) && (
-            <div className="insightGrid">
-              <article>
-                <span className="cardEyebrow">RISK</span>
-                <h3>誤解が生まれうる点</h3>
-                {result.risks.length ? <ul>{result.risks.map((item, i) => <li key={i}>{item}</li>)}</ul> : <p>大きなリスクは検出されませんでした。</p>}
-              </article>
-              <article>
-                <span className="cardEyebrow">CONFIRM</span>
-                <h3>送信前に確認したいこと</h3>
-                {result.questions.length ? <ul>{result.questions.map((item, i) => <li key={i}>{item}</li>)}</ul> : <p>追加確認は不要です。</p>}
-              </article>
+              <label className="englishSwitch">
+                <input type="checkbox" checked={withEnglish} onChange={(event) => setWithEnglish(event.target.checked)} />
+                <span className="switchTrack"><i /></span>
+                <span>英語版</span>
+              </label>
             </div>
-          )}
 
-          <article className="improvedCard">
-            <span className="cardEyebrow">READY TO PASTE</span>
-            <h3>改善案（日本語）</h3>
-            <p className="placeholderNote">【要確認: ...】は、AIが勝手に埋めず、送信者が確認すべき情報として残しています。</p>
-            <textarea
-              className="improvedTextarea"
-              value={result.improved_ja}
-              onChange={(event) => setResult({ ...result, improved_ja: event.target.value })}
-            />
-            <div className="copyActions">
-              <CopyButton text={result.improved_ja} label="Backlog用にコピー" />
-              <CopyButton text={result.improved_ja} label="Chatwork用にコピー" />
-              <CopyButton text={result.improved_ja} label="テキストをコピー" />
-            </div>
-          </article>
-
-          {result.improved_en && (
-            <article className="improvedCard englishCard">
-              <span className="cardEyebrow">ENGLISH</span>
-              <h3>English version</h3>
+            <div className="fieldGroup messageField">
+              <div className="fieldLabelRow">
+                <label htmlFor="message-draft">メッセージ</label>
+                <span>{message.length.toLocaleString()} / 6,000</span>
+              </div>
               <textarea
-                className="improvedTextarea"
-                value={result.improved_en}
-                onChange={(event) => setResult({ ...result, improved_en: event.target.value })}
+                id="message-draft"
+                value={message}
+                maxLength={6000}
+                onChange={(event) => setMessage(event.target.value)}
+                placeholder="送信予定のメッセージを入力してください…"
               />
-              <div className="copyActions"><CopyButton text={result.improved_en} label="Copy English" /></div>
-            </article>
-          )}
-        </section>
-      )}
+            </div>
 
-      <section className="futureVision">
-        <span className="sectionEyebrow">FUTURE VISION</span>
-        <h2>相手に合わせた「伝わり方」へ</h2>
-        <p>Hitomiさんからのフィードバックとして、将来は本人同意と適切なプライバシー保護を前提に、社員の既存のパーソナリティ／コミュニケーション傾向データを活用し、「この相手にはどう伝えると理解されやすいか」に合わせて文章を調整する構想があります。</p>
-        <strong>このプロトタイプでは、パーソナリティデータの取得・保存・推測は一切行いません。</strong>
-      </section>
+            <button className="checkButton" type="button" onClick={runCheck} disabled={!message.trim() || loading}>
+              <span aria-hidden="true">✦</span>
+              {loading ? "AIが確認中…" : "送信前コンテキストチェック"}
+            </button>
+            {error && <div className="inlineError">{error}</div>}
 
-      <footer className="contextFooter">
-        <strong>PENCIL Context Bridge</strong>
-        <span>Local prototype · Input is not persisted</span>
-      </footer>
-    </main>
+            <div className="samplesSection">
+              <div className="samplesHeader">
+                <div>
+                  <span className="panelKicker">TEST CASES</span>
+                  <h2>サンプルケース</h2>
+                </div>
+                <small>クリックして入力</small>
+              </div>
+              <div className="sampleList">
+                {SAMPLES.map((sample, index) => (
+                  <button key={sample.title} className={`sampleRow ${sample.source === "hr" ? "hr" : ""}`} type="button" onClick={() => loadSample(sample)}>
+                    <span className="sampleIndex">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="sampleText"><strong>{sample.title}</strong><small>{sample.hint}</small></span>
+                    {sample.source === "hr" && <em>HR実例</em>}
+                    <span className="sampleArrow">›</span>
+                  </button>
+                ))}
+              </div>
+              <p className="sourceNote">HR実例は、提供されたコミュニケーション記録から個人・固有情報を取り除いた検証用ケースです。</p>
+            </div>
+          </section>
+
+          <section className="panel checkPanel">
+            <div className="panelHeader dense">
+              <div>
+                <span className="panelKicker">CONTEXT CHECK</span>
+                <h2>共通理解チェック</h2>
+              </div>
+              {result && <span className={`issueCount ${warningCount ? "hasIssues" : ""}`}>{warningCount} issues</span>}
+            </div>
+
+            {!result ? (
+              <div className="emptyState">
+                <div className="emptyIcon">◎</div>
+                <strong>{loading ? "メッセージを分析しています" : "まだチェックされていません"}</strong>
+                <p>{loading ? "目的・背景・担当・期限・曖昧表現などを確認中です。" : "左のメッセージを入力して、送信前チェックを実行してください。"}</p>
+              </div>
+            ) : (
+              <>
+                <div className="scoreBlock">
+                  <ScoreRing score={result.clarity_score} />
+                  <div className="scoreCopy">
+                    <span>CONTEXT SCORE</span>
+                    <h3>{result.clarity_score >= 80 ? "かなり明確です" : result.clarity_score >= 60 ? "少し補足すると安心です" : "送信前に確認が必要です"}</h3>
+                    <p>{result.summary}</p>
+                  </div>
+                </div>
+
+                <div className="contextRows">
+                  {result.items.map((item, index) => (
+                    <div className="contextRow" key={`${item.label}-${index}`}>
+                      <span className={`contextStatus ${item.status}`}>{STATUS_LABELS[item.status]}</span>
+                      <div><strong>{item.label}</strong><p>{item.note}</p></div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="miniCards">
+                  <article>
+                    <span>⚠</span>
+                    <div><strong>誤解リスク</strong><p>{result.risks[0] || "大きなリスクは検出されませんでした。"}</p></div>
+                  </article>
+                  <article>
+                    <span>?</span>
+                    <div><strong>送信前の確認</strong><p>{result.questions[0] || "追加確認は不要です。"}</p></div>
+                  </article>
+                </div>
+              </>
+            )}
+          </section>
+
+          <section className="panel rewritePanel">
+            <div className="panelHeader dense">
+              <div>
+                <span className="panelKicker">AI SUGGESTION</span>
+                <h2>AI提案文</h2>
+              </div>
+              <span className="toolBadge">{CHANNEL_LABELS[channel]}</span>
+            </div>
+
+            {!result ? (
+              <div className="emptyState rewriteEmpty">
+                <div className="emptyIcon">✦</div>
+                <strong>改善案はここに表示されます</strong>
+                <p>不足情報はAIが勝手に作らず、【要確認: ...】として残します。</p>
+              </div>
+            ) : (
+              <>
+                <div className="rewriteInfo">
+                  <span className="rewriteLabel">改善後の日本語</span>
+                  <span className="rewriteHint">そのまま編集できます</span>
+                </div>
+                <textarea
+                  className="rewriteTextarea"
+                  value={result.improved_ja}
+                  onChange={(event) => setResult({ ...result, improved_ja: event.target.value })}
+                />
+
+                <div className="rewriteActions">
+                  <CopyButton text={result.improved_ja} label={`${CHANNEL_LABELS[channel]}用にコピー`} primary />
+                  <CopyButton text={result.improved_ja} label="テキストコピー" />
+                </div>
+
+                {result.improved_en && (
+                  <div className="englishOutput">
+                    <div className="rewriteInfo"><span className="rewriteLabel">English</span><span className="rewriteHint">optional</span></div>
+                    <textarea value={result.improved_en} onChange={(event) => setResult({ ...result, improved_en: event.target.value })} />
+                    <CopyButton text={result.improved_en} label="Copy English" />
+                  </div>
+                )}
+
+                <div className="confirmQuestions">
+                  <span className="panelKicker">BEFORE SEND</span>
+                  <h3>送信前に確認したいこと</h3>
+                  {result.questions.length ? (
+                    <ol>{result.questions.map((question, index) => <li key={index}>{question}</li>)}</ol>
+                  ) : (
+                    <p>追加確認は不要です。</p>
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className="futureStrip">
+              <span>FUTURE</span>
+              <p>将来は、本人同意と適切な保護のもとで、既存のコミュニケーション傾向データに合わせた文章調整を検討。</p>
+            </div>
+          </section>
+        </main>
+
+        <footer className="statusFooter">
+          <div><span className="liveDot" /> Local AI connected</div>
+          <div>Input not persisted</div>
+          <div>PENCIL Context Bridge · Internship Prototype</div>
+        </footer>
+      </div>
+    </div>
   );
 }
