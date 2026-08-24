@@ -216,83 +216,91 @@ export default function Home() {
           <p>People Bridge</p>
         </div>
         <div className="headerMeta">
-          <span>HR INTERNAL</span>
+          <span>PROPOSAL CONCEPT</span>
           <span>WEEK 34</span>
-          <b>構想検証用・架空データ</b>
+          <b>実API未接続・架空データ</b>
         </div>
       </header>
 
       <section className="intro">
         <div>
-          <p className="sectionLabel">SHARED UNDERSTANDING REPORT</p>
-          <h1>成果物の履歴から、<br />認識のずれを見つける。</h1>
+          <p className="sectionLabel">PERMISSION-FIRST / ZERO NEW STAFF INPUT</p>
+          <h1>許可が得られたら、<br />今ある記録から始める。</h1>
         </div>
         <div className="introNote">
-          <p>Backlog、Chatwork、会議議事録を課題単位で照合し、HRが確認すべき箇所だけを週次で届けます。</p>
-          <small>社員に新しい入力を求めない。個人を評価しない。AIだけで結論を出さない。</small>
+          <p>新しい入力画面は増やしません。Backlog、Chatwork、会議記録を課題単位で読み取り、確認が必要な案件だけをHRがすでに使っているExcel形式に週次で整理します。</p>
+          <small>このプロトタイプは許可後の想定体験です。実際のAPI接続や社内データの取得は行っていません。</small>
         </div>
       </section>
 
-      <ol className="flow" aria-label="週次レポート作成の流れ">
-        <li><span>01</span><div><strong>既存ログを取得</strong><small>現場の追加操作なし</small></div></li>
-        <li><span>02</span><div><strong>課題単位に整理</strong><small>個人名は役割に置換</small></div></li>
-        <li><span>03</span><div><strong>構造的なずれを検知</strong><small>閾値超過のみ抽出</small></div></li>
-        <li><span>04</span><div><strong>HRが確認</strong><small>Notionへ週次出力</small></div></li>
+      <section className="permissionCallout" aria-label="接続前に必要な合意">
+        <span>STEP 0 / PERMISSION &amp; DATA GOVERNANCE</span>
+        <strong>接続前に、会社承認・対象部署・読み取り範囲・保持期間・匿名化・HR閲覧権限を合意します。</strong>
+      </section>
+
+      <ol className="flow" aria-label="許可後の想定フロー">
+        <li><span>01</span><div><strong>会社承認と範囲設定</strong><small>対象部署・保持期間・HR権限</small></div></li>
+        <li><span>02</span><div><strong>既存記録を読み取る</strong><small>Backlog / Chatwork / 会議記録</small></div></li>
+        <li><span>03</span><div><strong>案件単位で検知</strong><small>手戻り・矛盾・記録外決定</small></div></li>
+        <li><span>04</span><div><strong>Excelへ週次出力</strong><small>HRの今ある業務で確認</small></div></li>
       </ol>
 
       <section className="reportFrame" aria-label="PENCIL Bridge weekly report">
         <div className="reportBar">
           <div>
-            <span className="liveDot" aria-hidden="true" />
-            <strong>PENCIL Bridge / 週次確認レポート</strong>
+            <span className="excelMark" aria-hidden="true">X</span>
+            <strong>PENCIL_Bridge_Weekly_Review_2026-W34.xlsx</strong>
           </div>
-          <p>2026.08.17–08.23&nbsp;&nbsp;｜&nbsp;&nbsp;対象課題 3件</p>
+          <p>PROPOSED OUTPUT&nbsp;&nbsp;｜&nbsp;&nbsp;NOT CONNECTED</p>
         </div>
+        <nav className="workbookTabs" aria-label="想定Excelシート">
+          <b>週次サマリー</b><span>確認候補</span><span>面談メモ</span><span>誤検知ログ</span>
+        </nav>
 
         <div className="reportLayout">
           <aside className="batchPanel">
             <div className="sideHeading">
-              <span>WEEKLY BATCH</span>
-              <h2>分析対象</h2>
-              <p>この画面では、説明用の架空ログを使って週次処理を再現します。</p>
+              <span>PROPOSED READ-ONLY SOURCES</span>
+              <h2>許可後の入力元</h2>
+              <p>会社の許可が得られた場合の読み取り範囲を、架空ログで再現します。</p>
             </div>
 
             <div className="sourceList">
-              <div><span className="sourceIcon backlog">B</span><p><strong>Backlog</strong><small>{sourceCounts.backlog} records</small></p><b>DEMO</b></div>
-              <div><span className="sourceIcon chatwork">C</span><p><strong>Chatwork</strong><small>{sourceCounts.chatwork} records</small></p><b>DEMO</b></div>
-              <div><span className="sourceIcon meeting">M</span><p><strong>会議議事録</strong><small>{sourceCounts.meeting} decisions</small></p><b>DEMO</b></div>
+              <div><span className="sourceIcon backlog">B</span><p><strong>Backlog</strong><small>{sourceCounts.backlog} fictional records</small></p><b>PROPOSED</b></div>
+              <div><span className="sourceIcon chatwork">C</span><p><strong>Chatwork</strong><small>{sourceCounts.chatwork} fictional records</small></p><b>PROPOSED</b></div>
+              <div><span className="sourceIcon meeting">M</span><p><strong>会議記録</strong><small>{sourceCounts.meeting} fictional decisions</small></p><b>PROPOSED</b></div>
             </div>
 
             <dl className="batchDetails">
-              <div><dt>集約単位</dt><dd>Backlog課題</dd></div>
-              <div><dt>対象期間</dt><dd>7日間</dd></div>
-              <div><dt>個人名</dt><dd>保持しない</dd></div>
+              <div><dt>接続状態</dt><dd>未実装</dd></div>
+              <div><dt>出力先</dt><dd>Excel</dd></div>
+              <div><dt>集約単位</dt><dd>案件・成果物</dd></div>
               <div><dt>社員の入力</dt><dd>0件</dd></div>
             </dl>
 
             <button className="primaryButton" type="button" onClick={runAnalysis} disabled={loading}>
-              <span>{loading ? "照合しています…" : report ? "もう一度分析する" : "今週のログを分析"}</span>
+              <span>{loading ? "想定処理を実行中…" : report ? "架空データでもう一度実行" : "架空データで動作を見る"}</span>
               <b aria-hidden="true">→</b>
             </button>
-            <p className="sideNote">実運用ではこの処理を週次で自動実行し、HR専用Notionページに出力します。</p>
+            <p className="sideNote">実運用を提案する場合は、承認とセキュリティ確認後に限定部署で読み取り専用パイロットを行います。</p>
             {error && <p className="errorMessage" role="alert">{error}</p>}
           </aside>
 
           <div className="reportBody">
             <div className="reportHeading">
               <div>
-                <p className="sectionLabel">HR REVIEW QUEUE</p>
-                <h2>今週の確認候補</h2>
+                <p className="sectionLabel">WEEK 34 / HR REVIEW</p>
+                <h2>Excel週次確認候補</h2>
               </div>
-              <span className="reviewPolicy">検知は結論ではありません</span>
+              <span className="reviewPolicy">AIは候補整理のみ・最終判断はHR</span>
             </div>
 
             {!report ? (
               <div className={`emptyState ${loading ? "isLoading" : ""}`}>
                 <div className="emptyWeek">34</div>
                 <div className="emptyCopy">
-                  <h3>{loading ? "課題ごとの判断履歴を照合中" : "週次レポートを作成します"}</h3>
-                  <p>{loading ? "修正回数、指示の矛盾、記録外参照、チャネル間の整合性を確認しています。" : "左のボタンを押すと、3件の架空課題からHRの確認候補を抽出します。"}</p>
+                  <h3>{loading ? "課題ごとの判断履歴を照合中" : "許可後の想定フローを確認できます"}</h3>
+                  <p>{loading ? "修正回数、指示の矛盾、記録外参照、チャネル間の整合性を確認しています。" : "左のボタンを押すと、実接続なしの架空データからExcel形式の週次確認候補を作成します。"}</p>
                 </div>
                 <div className="emptyLines" aria-hidden="true"><i /><i /><i /></div>
               </div>
@@ -305,6 +313,32 @@ export default function Home() {
                   <div className="summaryItem"><strong>0</strong><span>社員の入力作業</span></div>
                   <p>通常範囲の課題は表示せず、確認が必要な候補だけを残しています。</p>
                 </div>
+
+                <div className="excelTableWrap">
+                  <table className="excelTable">
+                    <thead>
+                      <tr><th>確認</th><th>課題ID</th><th>成果物</th><th>検知シグナル</th><th>手戻り</th><th>根拠</th><th>HR確認状況</th></tr>
+                    </thead>
+                    <tbody>
+                      {DEMO_ISSUES.map((demoIssue) => {
+                        const result = report.results.find((item) => item.issueId === demoIssue.issueId);
+                        return (
+                          <tr key={demoIssue.issueId} className={result ? "needsReview" : "normalRow"}>
+                            <td>{result ? "要確認" : "通常"}</td>
+                            <td>{demoIssue.issueId}</td>
+                            <td>{demoIssue.title.split(" / ")[0]}</td>
+                            <td>{result?.signals[0]?.label ?? "なし"}</td>
+                            <td>{result ? `${result.reworkCount}回` : "0回"}</td>
+                            <td>{result ? result.signals[0]?.evidence.map((entry) => SOURCE_LABEL[entry.source]).join(" ↔ ") : "Backlog"}</td>
+                            <td>{result ? "未確認" : "対象外"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="sheetDivider"><b>確認候補</b><span>根拠と面談準備</span></div>
 
                 <div className="caseList">
                   {report.results.map((issue, issueIndex) => {
@@ -415,8 +449,8 @@ export default function Home() {
       </section>
 
       <footer className="pageFooter">
-        <strong>PENCIL Bridge / Concept Prototype v1.1</strong>
-        <p>画面内の数値、課題名、発言はすべて説明用の架空データです。実証前にAPI接続、同意設計、権限管理、個人情報保護レビューが必要です。</p>
+        <strong>PENCIL Bridge / Proposal Prototype v1.2</strong>
+        <p>架空データでのUI検証です。実運用には会社承認、API権限、セキュリティ確認、限定パイロットが必要です。個人スコア・感情推定・自動人事判断は行いません。</p>
       </footer>
     </main>
   );
