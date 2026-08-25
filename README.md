@@ -53,7 +53,8 @@ Open http://localhost:3000.
 
 Implemented:
 
-- fictional issue-level data
+- 10 fictional issue-level cases with 40 messages across three source types
+- three clearly labeled foreign-staff scenarios covering deadlines, bilingual documentation, and Japanese writing expectations
 - local case and feedback persistence
 - manual communication-log input
 - deterministic detection with optional local Ollama NLI
