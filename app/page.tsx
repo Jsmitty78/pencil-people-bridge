@@ -13,7 +13,7 @@ type Evidence = { source: Source; date: string; role: string; text: string; flag
 type ReviewCase = {
   id: string; title: string; owner: string; severity: Severity; status: Status;
   signal: string; summary: string; rework: number; average: number;
-  confidence: number; question: string; evidence: Evidence[];
+  confidence: number; question: string; evidence: Evidence[]; foreignStaff?: boolean;
 };
 
 const INITIAL_CASES: ReviewCase[] = [
@@ -42,12 +42,96 @@ const INITIAL_CASES: ReviewCase[] = [
     ],
   },
   {
-    id: "BLG-1201", title: "バナー納品", owner: "広告案件 C", severity: "normal", status: "確認済み",
-    signal: "不一致なし", summary: "会議記録とBacklogの納期・成果物が一致しています。追加確認は不要です。",
+    id: "INT-2041", title: "外国籍スタッフのキャンペーン納期", owner: "国際案件 C", severity: "high", status: "未確認", foreignStaff: true,
+    signal: "チャネル間で締切日が不一致",
+    summary: "会議では金曜日17時が締切でしたが、Chatworkでは木曜日午前中の提出が求められています。",
+    rework: 2, average: 2.1, confidence: 95,
+    question: "正式な締切は木曜日と金曜日のどちらで、変更はどこに記録されましたか？",
+    evidence: [
+      { source: "会議記録", date: "8月18日 10:10", role: "プロジェクト管理者", text: "初稿は金曜日17時までです。不明点は英語で質問してください。", flagged: true },
+      { source: "Backlog", date: "8月18日 13:05", role: "外国籍スタッフ", text: "金曜日17時までに英語版の初稿を提出します。" },
+      { source: "Chatwork", date: "8月20日 09:12", role: "確認者", text: "クライアント会議前に確認したいので、木曜日午前中までに完成してください。", flagged: true },
+    ],
+  },
+  {
+    id: "INT-2046", title: "外国籍スタッフ向けオンボーディング資料", owner: "人事案件 D", severity: "medium", status: "未確認", foreignStaff: true,
+    signal: "必要な言語版がチャネル間で不一致",
+    summary: "会議では日英両方の資料が必要とされましたが、Backlogでは日本語版のみの作成指示になっています。",
+    rework: 3, average: 2.1, confidence: 91,
+    question: "外国籍スタッフ向けの英語版は必要ですか。最終方針をどこに記録しますか？",
+    evidence: [
+      { source: "会議記録", date: "8月19日 11:00", role: "HR責任者", text: "新しい外国籍スタッフが理解できるよう、英語版と日本語版の両方を作成します。", flagged: true },
+      { source: "Backlog", date: "8月19日 14:20", role: "コンテンツ責任者", text: "日本語のみで作成してください。英語版は不要です。", flagged: true },
+      { source: "Chatwork", date: "8月20日 10:35", role: "外国籍スタッフ確認者", text: "英語版を確認できますが、日本語の資料しか見つかりません。" },
+    ],
+  },
+  {
+    id: "HR-031", title: "日報の提出ルール", owner: "人事運用 E", severity: "high", status: "未確認",
+    signal: "日報の提出期限が不一致",
+    summary: "会議では業務終了時の提出、Backlogでは翌朝10時までの提出と記録されています。",
+    rework: 4, average: 2.1, confidence: 93,
+    question: "日報の正式な締切は退勤前と翌朝10時のどちらですか？",
+    evidence: [
+      { source: "会議記録", date: "8月18日 09:30", role: "チーム管理者", text: "日報は各自の業務終了時、当日中に提出してください。", flagged: true },
+      { source: "Backlog", date: "8月18日 12:15", role: "運用担当", text: "日報は毎朝10時までに提出する運用です。", flagged: true },
+      { source: "Chatwork", date: "8月19日 10:20", role: "スタッフ", text: "昨日の退勤前に提出しましたが、今朝は未提出と連絡がありました。" },
+    ],
+  },
+  {
+    id: "WEB-221", title: "レスポンシブ対応範囲", owner: "Web案件 F", severity: "high", status: "未確認",
+    signal: "納品範囲が途中で変更",
+    summary: "会議ではモバイル版のみが対象でしたが、後続指示ではデスクトップ版も今回の納品に追加されています。",
+    rework: 4, average: 2.1, confidence: 92,
+    question: "デスクトップ版を追加した決定と納期への影響は記録されていますか？",
+    evidence: [
+      { source: "会議記録", date: "8月17日 15:00", role: "プロジェクト管理者", text: "今回は納期を優先し、モバイル版のみを対象にします。", flagged: true },
+      { source: "Backlog", date: "8月18日 09:45", role: "開発担当", text: "モバイル版の実装を開始しました。" },
+      { source: "Chatwork", date: "8月20日 14:22", role: "確認者", text: "デスクトップ版とモバイル版の両方を今回の納品に含めてください。", flagged: true },
+    ],
+  },
+  {
+    id: "ADV-089", title: "広告公開の承認フロー", owner: "広告案件 G", severity: "medium", status: "未確認",
+    signal: "最終承認者が不一致",
+    summary: "会議では部長の最終承認が必要ですが、Chatworkではチームリーダーの確認で公開可能とされています。",
+    rework: 1, average: 2.1, confidence: 89,
+    question: "公開前の正式な最終承認者は誰ですか？",
+    evidence: [
+      { source: "会議記録", date: "8月20日 13:00", role: "案件責任者", text: "公開前の最終承認は部長が行います。承認前には配信しません。", flagged: true },
+      { source: "Chatwork", date: "8月21日 09:08", role: "チームリーダー", text: "チームリーダーの確認で公開して大丈夫です。今日中に配信してください。", flagged: true },
+      { source: "Backlog", date: "8月21日 09:35", role: "運用担当", text: "最終承認者が異なるため、公開を保留しています。" },
+    ],
+  },
+  {
+    id: "OPS-074", title: "クライアントへのファイル納品方法", owner: "運用案件 H", severity: "medium", status: "未確認",
+    signal: "納品方法がチャネル間で不一致",
+    summary: "会議ではメール添付、Backlogでは共有リンクでの納品が指示されています。",
+    rework: 2, average: 2.1, confidence: 88,
+    question: "クライアントが承認した正式な納品方法はどちらですか？",
+    evidence: [
+      { source: "会議記録", date: "8月18日 16:00", role: "クライアント担当", text: "最終ファイルはメール添付で納品します。", flagged: true },
+      { source: "Backlog", date: "8月19日 10:30", role: "進行担当", text: "納品はBacklogの共有リンクを使用してください。メール添付は不要です。", flagged: true },
+      { source: "Chatwork", date: "8月19日 11:15", role: "作業担当", text: "メール添付とBacklogリンクのどちらが正式な方法でしょうか。" },
+    ],
+  },
+  {
+    id: "INT-2052", title: "外国籍スタッフ向け日本語表現ルール", owner: "国際案件 I", severity: "high", status: "未確認", foreignStaff: true,
+    signal: "日本語の文体ルールが不一致",
+    summary: "研修では分かりやすい日本語を優先すると説明されましたが、後続指示では正式な敬語が必須とされています。",
+    rework: 4, average: 2.1, confidence: 90,
+    question: "社内文書で外国籍スタッフに求める正式な文体ルールはどちらですか？",
+    evidence: [
+      { source: "会議記録", date: "8月19日 16:30", role: "研修担当", text: "社内の初稿では平易な日本語で構いません。完璧な敬語より分かりやすさを優先します。", flagged: true },
+      { source: "Chatwork", date: "8月20日 09:50", role: "確認者", text: "社内文書でも必ず正式な敬語を使ってください。カジュアルな日本語は修正してください。", flagged: true },
+      { source: "Backlog", date: "8月20日 13:25", role: "外国籍スタッフ", text: "正式な日本語に書き直しましたが、今後どちらのルールを使うか分かりません。" },
+    ],
+  },
+  {
+    id: "BLG-1280", title: "月次レポート更新", owner: "レポート案件 J", severity: "normal", status: "確認済み",
+    signal: "不一致なし", summary: "会議記録とBacklogのテンプレート・納期・成果物が一致しています。追加確認は不要です。",
     rework: 0, average: 2.1, confidence: 97, question: "追加確認は不要です。",
     evidence: [
-      { source: "会議記録", date: "8月18日 15:40", role: "最終確認者", text: "金曜日までに初稿を完成させる。" },
-      { source: "Backlog", date: "8月19日 09:12", role: "作業担当", text: "金曜日の初稿提出に向けて進行中です。" },
+      { source: "会議記録", date: "8月20日 10:00", role: "レポート責任者", text: "月次レポートは既存テンプレートを使い、金曜日17時までに提出します。" },
+      { source: "Backlog", date: "8月20日 10:35", role: "作業担当", text: "既存テンプレートで作成し、金曜日17時までに提出します。" },
     ],
   },
 ];
@@ -82,23 +166,116 @@ const EN: Record<string, string> = {
   "8月19日 11:22": "Aug 19, 11:22",
   "8月20日 16:15": "Aug 20, 16:15",
   "8月21日 10:04": "Aug 21, 10:04",
+  "8月18日 10:10": "Aug 18, 10:10",
+  "8月18日 13:05": "Aug 18, 13:05",
+  "8月20日 09:12": "Aug 20, 09:12",
+  "8月19日 11:00": "Aug 19, 11:00",
+  "8月19日 14:20": "Aug 19, 14:20",
+  "8月18日 09:30": "Aug 18, 09:30",
+  "8月18日 12:15": "Aug 18, 12:15",
+  "8月19日 10:20": "Aug 19, 10:20",
+  "8月17日 15:00": "Aug 17, 15:00",
+  "8月18日 09:45": "Aug 18, 09:45",
+  "8月20日 14:22": "Aug 20, 14:22",
+  "8月20日 13:00": "Aug 20, 13:00",
+  "8月21日 09:08": "Aug 21, 09:08",
+  "8月21日 09:35": "Aug 21, 09:35",
+  "8月18日 16:00": "Aug 18, 16:00",
+  "8月19日 10:30": "Aug 19, 10:30",
+  "8月19日 11:15": "Aug 19, 11:15",
+  "8月19日 16:30": "Aug 19, 16:30",
+  "8月20日 09:50": "Aug 20, 09:50",
+  "8月20日 13:25": "Aug 20, 13:25",
   "トップページ改修案を提出しました。決定理由の記録場所は未確認です。": "I submitted the homepage revision proposal. I have not confirmed where the decision rationale was recorded.",
   "昨日口頭で確認した内容と同じ方針で進めてください。": "Please proceed with the same direction we confirmed verbally yesterday.",
   "先ほど話した仕様に変更しておいてください。": "Please change it to the specification we discussed earlier.",
-  "バナー納品": "Banner Delivery",
-  "広告案件 C": "Advertising Project C",
+  "外国籍スタッフのキャンペーン納期": "Foreign Staff Campaign Deadline",
+  "国際案件 C": "International Project C",
+  "チャネル間で締切日が不一致": "Deadline mismatch across channels",
+  "会議では金曜日17時が締切でしたが、Chatworkでは木曜日午前中の提出が求められています。": "The meeting set Friday at 5:00 PM, but Chatwork requests submission on Thursday morning.",
+  "正式な締切は木曜日と金曜日のどちらで、変更はどこに記録されましたか？": "Is the official deadline Thursday or Friday, and where was the change recorded?",
+  "プロジェクト管理者": "Project manager",
+  "初稿は金曜日17時までです。不明点は英語で質問してください。": "The first draft is due Friday at 5:00 PM. Please ask in English if anything is unclear.",
+  "外国籍スタッフ": "Foreign staff",
+  "金曜日17時までに英語版の初稿を提出します。": "I will submit the English first draft by Friday at 5:00 PM.",
+  "確認者": "Reviewer",
+  "クライアント会議前に確認したいので、木曜日午前中までに完成してください。": "Please finish it by Thursday morning so we can review it before the client meeting.",
+  "外国籍スタッフ向けオンボーディング資料": "Bilingual Onboarding Manual",
+  "人事案件 D": "HR Project D",
+  "必要な言語版がチャネル間で不一致": "Required language versions do not match",
+  "会議では日英両方の資料が必要とされましたが、Backlogでは日本語版のみの作成指示になっています。": "The meeting requested both English and Japanese, but Backlog instructs the team to create only a Japanese version.",
+  "外国籍スタッフ向けの英語版は必要ですか。最終方針をどこに記録しますか？": "Is an English version required for foreign staff, and where will the final decision be recorded?",
+  "HR責任者": "HR lead",
+  "新しい外国籍スタッフが理解できるよう、英語版と日本語版の両方を作成します。": "Create both English and Japanese versions so new foreign staff can understand the process.",
+  "コンテンツ責任者": "Content owner",
+  "日本語のみで作成してください。英語版は不要です。": "Create the Japanese version only. An English version is not needed.",
+  "外国籍スタッフ確認者": "Foreign staff reviewer",
+  "英語版を確認できますが、日本語の資料しか見つかりません。": "I can review the English version, but I only see the Japanese document.",
+  "日報の提出ルール": "Daily Report Submission Rule",
+  "人事運用 E": "HR Operations E",
+  "日報の提出期限が不一致": "Daily report deadline mismatch",
+  "会議では業務終了時の提出、Backlogでは翌朝10時までの提出と記録されています。": "The meeting says reports are due at the end of the workday, while Backlog records a 10:00 AM deadline.",
+  "日報の正式な締切は退勤前と翌朝10時のどちらですか？": "Is the official daily report deadline before leaving or 10:00 AM the next morning?",
+  "チーム管理者": "Team manager",
+  "日報は各自の業務終了時、当日中に提出してください。": "Submit the daily report at the end of your workday.",
+  "運用担当": "Operations",
+  "日報は毎朝10時までに提出する運用です。": "The daily report should be submitted by 10:00 AM each morning.",
+  "スタッフ": "Staff member",
+  "昨日の退勤前に提出しましたが、今朝は未提出と連絡がありました。": "I submitted it before leaving yesterday, but this morning I was told it was missing.",
+  "レスポンシブ対応範囲": "Responsive Page Scope",
+  "Web案件 F": "Web Project F",
+  "納品範囲が途中で変更": "Delivery scope changed during execution",
+  "会議ではモバイル版のみが対象でしたが、後続指示ではデスクトップ版も今回の納品に追加されています。": "The meeting limited the scope to mobile, but a later instruction adds desktop to the same delivery.",
+  "デスクトップ版を追加した決定と納期への影響は記録されていますか？": "Was the decision to add desktop and its deadline impact recorded?",
+  "今回は納期を優先し、モバイル版のみを対象にします。": "To prioritize the deadline, this delivery will cover mobile only.",
+  "開発担当": "Developer",
+  "モバイル版の実装を開始しました。": "I started implementing the mobile version.",
+  "デスクトップ版とモバイル版の両方を今回の納品に含めてください。": "Include both desktop and mobile versions in this delivery.",
+  "広告公開の承認フロー": "Advertisement Release Approval",
+  "広告案件 G": "Advertising Project G",
+  "最終承認者が不一致": "Final approver mismatch",
+  "会議では部長の最終承認が必要ですが、Chatworkではチームリーダーの確認で公開可能とされています。": "The meeting requires final director approval, while Chatwork says team-lead confirmation is sufficient.",
+  "公開前の正式な最終承認者は誰ですか？": "Who is the official final approver before release?",
+  "案件責任者": "Account owner",
+  "公開前の最終承認は部長が行います。承認前には配信しません。": "The director gives final approval. Do not publish before approval.",
+  "チームリーダー": "Team lead",
+  "チームリーダーの確認で公開して大丈夫です。今日中に配信してください。": "Team-lead confirmation is enough. Please publish it today.",
+  "最終承認者が異なるため、公開を保留しています。": "Release is paused because the final approver differs across the records.",
+  "クライアントへのファイル納品方法": "Client File Delivery Method",
+  "運用案件 H": "Operations Project H",
+  "納品方法がチャネル間で不一致": "Delivery method mismatch across channels",
+  "会議ではメール添付、Backlogでは共有リンクでの納品が指示されています。": "The meeting requests an email attachment, while Backlog requests delivery through a shared link.",
+  "クライアントが承認した正式な納品方法はどちらですか？": "Which delivery method did the client officially approve?",
+  "クライアント担当": "Client lead",
+  "最終ファイルはメール添付で納品します。": "Deliver the final file as an email attachment.",
+  "進行担当": "Project coordinator",
+  "納品はBacklogの共有リンクを使用してください。メール添付は不要です。": "Use a Backlog shared link for delivery. An email attachment is unnecessary.",
+  "メール添付とBacklogリンクのどちらが正式な方法でしょうか。": "Which is the official method, an email attachment or a Backlog link?",
+  "外国籍スタッフ向け日本語表現ルール": "Japanese Tone for Foreign Staff",
+  "国際案件 I": "International Project I",
+  "日本語の文体ルールが不一致": "Japanese writing-style rule mismatch",
+  "研修では分かりやすい日本語を優先すると説明されましたが、後続指示では正式な敬語が必須とされています。": "Training prioritized clear Japanese, but a later instruction requires formal keigo.",
+  "社内文書で外国籍スタッフに求める正式な文体ルールはどちらですか？": "What is the official writing-style rule for foreign staff in internal documents?",
+  "研修担当": "Trainer",
+  "社内の初稿では平易な日本語で構いません。完璧な敬語より分かりやすさを優先します。": "Plain Japanese is acceptable for internal drafts. Clarity matters more than perfect keigo.",
+  "社内文書でも必ず正式な敬語を使ってください。カジュアルな日本語は修正してください。": "Always use formal keigo, even in internal documents. Please revise casual Japanese.",
+  "正式な日本語に書き直しましたが、今後どちらのルールを使うか分かりません。": "I rewrote it in formal Japanese, but I do not know which rule applies in the future.",
+  "月次レポート更新": "Monthly Report Update",
+  "レポート案件 J": "Report Project J",
   "不一致なし": "No inconsistency",
-  "会議記録とBacklogの納期・成果物が一致しています。追加確認は不要です。": "The deadline and deliverable match across the meeting record and Backlog. No further review is needed.",
+  "会議記録とBacklogのテンプレート・納期・成果物が一致しています。追加確認は不要です。": "The template, deadline, and deliverable match across the meeting record and Backlog. No further review is needed.",
   "追加確認は不要です。": "No further review is needed.",
-  "8月18日 15:40": "Aug 18, 15:40",
-  "8月19日 09:12": "Aug 19, 09:12",
-  "金曜日までに初稿を完成させる。": "Complete the first draft by Friday.",
-  "金曜日の初稿提出に向けて進行中です。": "Work is progressing toward the Friday first-draft submission.",
+  "8月20日 10:00": "Aug 20, 10:00",
+  "8月20日 10:35": "Aug 20, 10:35",
+  "レポート責任者": "Report owner",
+  "月次レポートは既存テンプレートを使い、金曜日17時までに提出します。": "Use the existing template and submit the monthly report by Friday at 5:00 PM.",
+  "既存テンプレートで作成し、金曜日17時までに提出します。": "I will use the existing template and submit by Friday at 5:00 PM.",
   "会議記録": "Meeting log",
   "未確認": "Unreviewed",
   "面談候補": "Follow-up",
   "確認済み": "Reviewed",
   "誤検知": "False positive",
+  "外国籍スタッフ関連": "Foreign staff scenario",
   "概要": "Overview",
   "確認キュー": "Review queue",
   "データ登録・検知": "Data & detection",
@@ -276,18 +453,18 @@ export default function Home() {
           <section className="notice"><div><span>DEMO DATA</span><strong>{t("この画面の案件・メッセージ・数値はすべて架空です。")}</strong></div><p>{t("AIは確認候補と根拠を整理するだけです。人や感情を評価せず、最終判断はHRが行います。")}</p></section>
           <section className="metricGrid">
             <article className="metricCard critical"><div><span>{t("要確認")}</span><small>{t("前週比 +1")}</small></div><strong>{reviewCount}</strong><p>{t("HRの判断を待っている案件")}</p></article>
-            <article className="metricCard"><div><span>{t("対象課題")}</span><small>WEEK 35</small></div><strong>24</strong><p>{t("限定部署の課題を照合")}</p></article>
-            <article className="metricCard"><div><span>{t("通常範囲")}</span><small>{t("自動で非表示")}</small></div><strong>22</strong><p>{t("不一致が見つからなかった案件")}</p></article>
+            <article className="metricCard"><div><span>{t("対象課題")}</span><small>WEEK 35</small></div><strong>10</strong><p>{t("限定部署の課題を照合")}</p></article>
+            <article className="metricCard"><div><span>{t("通常範囲")}</span><small>{t("自動で非表示")}</small></div><strong>1</strong><p>{t("不一致が見つからなかった案件")}</p></article>
             <article className="metricCard"><div><span>{t("追加入力")}</span><small>{t("スタッフ負担")}</small></div><strong>0</strong><p>{t("既存記録のみを読み取り")}</p></article>
           </section>
           <section className="overviewGrid">
             <article className="panel signalPanel">
               <header className="panelHeader"><div><span className="eyebrow">WEEKLY SIGNAL</span><h2>{t("今週、先に見るべき2件")}</h2></div><button onClick={() => setView("review")}>{t("すべて確認 →")}</button></header>
-              <div className="signalRows">{cases.filter((item) => item.severity !== "normal").map((item) => <button key={item.id} onClick={() => { setSelectedId(item.id); setView("review"); }}><span className={"severityBar " + item.severity} /><div className="signalMain"><small>{item.id} ・ {t(item.owner)}</small><strong>{t(item.title)}</strong><p>{t(item.signal)}</p></div><div className="signalStat"><strong>{item.rework}</strong><small>{t("手戻り")}</small></div><span className="rowArrow">→</span></button>)}</div>
+              <div className="signalRows">{cases.filter((item) => item.severity !== "normal").slice(0, 2).map((item) => <button key={item.id} onClick={() => { setSelectedId(item.id); setView("review"); }}><span className={"severityBar " + item.severity} /><div className="signalMain"><small>{item.id} ・ {t(item.owner)}</small><strong>{t(item.title)}</strong><p>{t(item.signal)}</p></div><div className="signalStat"><strong>{item.rework}</strong><small>{t("手戻り")}</small></div><span className="rowArrow">→</span></button>)}</div>
             </article>
             <article className="panel sourcePanel">
               <header className="panelHeader"><div><span className="eyebrow">READ-ONLY INPUT</span><h2>{t("照合した記録")}</h2></div><span className="syncState"><i />{t("正常")}</span></header>
-              <div className="sourceRows"><div><SourceBadge source="Backlog" lang={lang} /><strong>24</strong><small>{t("課題")}</small></div><div><SourceBadge source="Chatwork" lang={lang} /><strong>86</strong><small>{t("メッセージ")}</small></div><div><SourceBadge source="会議記録" lang={lang} /><strong>12</strong><small>{t("決定事項")}</small></div></div>
+              <div className="sourceRows"><div><SourceBadge source="Backlog" lang={lang} /><strong>10</strong><small>{t("課題")}</small></div><div><SourceBadge source="Chatwork" lang={lang} /><strong>15</strong><small>{t("メッセージ")}</small></div><div><SourceBadge source="会議記録" lang={lang} /><strong>9</strong><small>{t("決定事項")}</small></div></div>
               <footer><span>{t("最終実行")}</span><strong>{t(lastRun)}</strong></footer>
             </article>
           </section>
@@ -297,9 +474,9 @@ export default function Home() {
         {view === "review" && <div className="content reviewView">
           <section className="queueToolbar"><div className="segmented"><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>{t("すべて")} <b>{cases.length}</b></button><button className={filter === "open" ? "active" : ""} onClick={() => setFilter("open")}>{t("未完了")} <b>{reviewCount}</b></button><button className={filter === "done" ? "active" : ""} onClick={() => setFilter("done")}>{t("対応済み")}</button></div><p><span />{t("案件単位のみ表示・個人評価なし")}</p></section>
           <section className="reviewLayout">
-            <div className="caseQueue"><div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong><span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong><span>{t("信頼度")} {item.confidence}%</span></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
+            <div className="caseQueue"><div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong>{item.foreignStaff && <em className="caseForeignBadge">{t("外国籍スタッフ関連")}</em>}<span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong><span>{t("信頼度")} {item.confidence}%</span></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
             <article className="caseDetail">
-              <header className="detailHeader"><div><span className={"statusPill " + statusClass[selected.status]}>{t(selected.status)}</span><small>{selected.id} ・ {t(selected.owner)}</small><h2>{t(selected.title)}</h2></div><div className="confidence"><span>{t("検知信頼度")}</span><strong>{selected.confidence}<small>%</small></strong></div></header>
+              <header className="detailHeader"><div><span className={"statusPill " + statusClass[selected.status]}>{t(selected.status)}</span>{selected.foreignStaff && <span className="caseForeignBadge">{t("外国籍スタッフ関連")}</span>}<small>{selected.id} ・ {t(selected.owner)}</small><h2>{t(selected.title)}</h2></div><div className="confidence"><span>{t("検知信頼度")}</span><strong>{selected.confidence}<small>%</small></strong></div></header>
               <section className="findingBox"><span>{t("検知理由")}</span><strong>{t(selected.signal)}</strong><p>{t(selected.summary)}</p><div className="reworkScale"><div><span>{t("手戻り")} <b>{selected.rework}{lang === "ja" ? "回" : ""}</b></span><small>{t("部署平均")} {selected.average.toFixed(1)}{lang === "ja" ? "回" : ""}</small></div><div className="track"><i style={{ width: Math.min(100, selected.rework / 6 * 100) + "%" }} /><b style={{ left: selected.average / 6 * 100 + "%" }} /></div></div></section>
               <section className="evidenceSection"><div className="sectionTitle"><div><span className="eyebrow">SOURCE TRACE</span><h3>{t("判断履歴と根拠")}</h3></div><small>{t("赤線 = 検知に使った記録")}</small></div><div className="timeline">{selected.evidence.map((entry, index) => <div className={entry.flagged ? "flagged" : ""} key={selected.id + "-" + index}><span className="timelineLine" /><SourceBadge source={entry.source} lang={lang} /><small>{t(entry.date)} ・ {t(entry.role)}</small><p>{t(entry.text)}</p></div>)}</div></section>
               <section className="questionBox"><div><span>HR</span><small>{t("確認時の質問案")}</small></div><p>{lang === "ja" ? "「" : "“"}{t(selected.question)}{lang === "ja" ? "」" : "”"}</p></section>
