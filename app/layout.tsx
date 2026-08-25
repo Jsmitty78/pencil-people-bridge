@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "PENCIL Bridge | HR Review Console",
-  description: "Issue-level shared-understanding review prototype for PENCIL",
+  title: "PENCIL Bridge V2 | HR Review Console",
+  description: "Engineer-feedback build of the issue-level HR communication review prototype",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
