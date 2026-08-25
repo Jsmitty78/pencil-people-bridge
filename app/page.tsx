@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import PipelineLab from "./PipelineLab";
 
-type Source = "Backlog" | "Chatwork" | "会議記録";
+type Source = "Backlog" | "Chatwork" | "会議記録" | "Box";
 type Severity = "high" | "medium" | "normal";
 type Status = "未確認" | "面談候補" | "確認済み" | "誤検知";
 type View = "overview" | "pipeline" | "review" | "architecture";
@@ -139,6 +139,7 @@ const sourceMeta: Record<Source, { letter: string; className: string }> = {
   Backlog: { letter: "B", className: "backlog" },
   Chatwork: { letter: "C", className: "chatwork" },
   会議記録: { letter: "M", className: "meeting" },
+  Box: { letter: "X", className: "box" },
 };
 const statusClass: Record<Status, string> = { 未確認: "new", 面談候補: "queued", 確認済み: "done", 誤検知: "dismissed" };
 
@@ -280,6 +281,8 @@ const EN: Record<string, string> = {
   "データ登録・検知": "Data & detection",
   "接続設計": "Connection design",
   "実データ・実APIは未接続": "No live data or APIs connected",
+  "エンジニアFB反映版": "Engineer-feedback build",
+  "自動連携を模した架空データです": "Fictional data with simulated connections",
   "共有理解のズレを、案件単位で見つける。": "Find gaps in shared understanding, issue by issue.",
   "今週の確認キュー": "This week's review queue",
   "読み取り専用パイロット設計": "Read-only pilot design",
@@ -310,6 +313,24 @@ const EN: Record<string, string> = {
   "決定事項": "decisions",
   "最終実行": "Last run",
   "8月25日 09:40": "Aug 25, 09:40",
+  "ファイル": "files",
+  "デモ接続": "Demo connected",
+  "週次HRレポート": "Weekly HR report",
+  "優先案件と確認質問をHRにまとめて送ります": "Packages priority cases and review questions for HR",
+  "レポートに含める": "Add to report",
+  "レポートから外す": "Remove from report",
+  "HRへ週次レポートを送信": "Send weekly report to HR",
+  "HRへ送信済み": "Sent to HR",
+  "通知待ち": "Awaiting notification",
+  "件の案件を含む": "cases included",
+  "自動収集": "Automatic collection",
+  "Chatwork・Backlog・会議記録を読み取り": "Read Chatwork, Backlog, and meeting records",
+  "Boxワークスペース": "Box workspace",
+  "同じ場所にトランスクリプトと参照IDを集約": "Gather transcripts and reference IDs in one place",
+  "30分バッチ分析": "30-minute batch analysis",
+  "定義済みシグナルで案件単位に検知": "Detect issue-level signals using defined rules",
+  "HRへ通知": "Notify HR",
+  "優先案件を週次レポートまたは通知で共有": "Share priority cases through a weekly report or notification",
   "案件IDで集約": "Group by issue ID",
   "人ではなく成果物を軸にする": "Anchor analysis to work, not people",
   "判断履歴を照合": "Compare decision history",
@@ -333,10 +354,42 @@ const EN: Record<string, string> = {
   "判断履歴と根拠": "Decision history and evidence",
   "赤線 = 検知に使った記録": "Red line = evidence used",
   "確認時の質問案": "Suggested review question",
+  "出力フォーマット": "Output format",
+  "HR専用分析": "Private HR analysis",
+  "スタッフ向け確認文": "Staff clarification draft",
+  "HR限定": "HR only",
+  "HR承認後のみ共有": "Share only after HR approval",
+  "スタッフに見せる内容には、HRの内部分析・信頼度・人物評価を含めません。": "The staff-facing output excludes internal HR analysis, confidence scores, and any evaluation of people.",
+  "この案件について、異なる指示が記録されています。作業を続ける前に、次の点を確認してください。": "Different instructions were recorded for this work item. Before continuing, please confirm the following point.",
+  "これは状況確認のためのメッセージであり、個人の評価ではありません。": "This message requests clarification and is not an evaluation of any individual.",
+  "共有をHRが承認": "HR approves sharing",
+  "共有承認済み": "Approved for sharing",
+  "自動文字起こし": "Automatic transcript",
+  "文字起こし信頼度": "Transcript confidence",
   "誤検知として記録": "Mark false positive",
   "面談候補に追加": "Add to follow-up",
   "確認済みにする": "Mark reviewed",
   "今日確認したいのは、AI精度より先に\n「安全に紐づけられるか」です。": "Before AI accuracy, today's key question is:\nCan the records be linked safely?",
+  "エンジニアのフィードバックを、収集・分析・通知までの実行フローに反映しました。": "Engineer feedback is now reflected in an operating flow from collection through analysis and notification.",
+  "入力ソース": "Input sources",
+  "承認済み範囲のChatwork・Backlog・会議記録": "Chatwork, Backlog, and meeting records from the approved scope",
+  "自動集約": "Automatic workspace",
+  "Boxにトランスクリプト・参照ID・処理状態を集約": "Collect transcripts, reference IDs, and processing status in Box",
+  "定義済みアナライザー": "Defined analyzer",
+  "矛盾・反復確認・記録漏れ・手戻りを30分ごとに確認": "Check contradictions, repeated clarification, missing records, and rework every 30 minutes",
+  "2つの安全な出力": "Two safe outputs",
+  "HR専用レポートと、HR承認後のスタッフ確認文": "A private HR report and an HR-approved staff clarification draft",
+  "会議フィードバックをV2に反映": "Engineer feedback implemented in V2",
+  "検知ワードを単語だけで判断しない": "Do not judge from keywords alone",
+  "前後の会話・同一案件・後続質問を組み合わせて判定": "Combine surrounding messages, issue context, and later questions",
+  "Boxと各ツールの自動集約を表現": "Show automatic aggregation from each tool into Box",
+  "実APIの代わりに読み取り専用デモ接続で動作を再現": "Use read-only demo connections to represent the flow before live APIs",
+  "HR用とスタッフ用の出力を分離": "Separate HR and staff outputs",
+  "スタッフ向け文面はHR承認後のみ共有可能": "Staff-facing text can be shared only after HR approval",
+  "HR不在時は週次レポートで届ける": "Deliver a weekly report when HR cannot attend",
+  "優先案件・根拠・確認質問を1つの通知に集約": "Combine priority cases, evidence, and review questions into one notification",
+  "処理完了後の通知状態を表示": "Show notification status after processing",
+  "30分バッチをデモ実行し、完了からHR通知まで確認可能": "Simulate the 30-minute batch and show completion through HR notification",
   "最初のパイロットは1部署・4週間・読み取り専用を想定。個人スコアは作らず、Backlog課題IDを中心に、Chatworkと会議記録を接続します。": "The initial pilot covers one department for four weeks with read-only access. It creates no individual scores and links Chatwork and meeting records around Backlog issue IDs.",
   "課題ID、状態変更、コメント、担当ロール、更新時刻": "Issue ID, status changes, comments, role, and timestamps",
   "課題IDを含むメッセージ、投稿時刻、スレッド参照": "Messages containing issue IDs, timestamps, and thread references",
@@ -379,6 +432,10 @@ export default function Home() {
   const [filter, setFilter] = useState<"all" | "open" | "done">("all");
   const [running, setRunning] = useState(false);
   const [lastRun, setLastRun] = useState("8月25日 09:40");
+  const [detailMode, setDetailMode] = useState<"hr" | "staff">("hr");
+  const [reportCaseIds, setReportCaseIds] = useState<string[]>(["BLG-1234", "BLG-1189", "INT-2041"]);
+  const [weeklyReportSent, setWeeklyReportSent] = useState(false);
+  const [staffDraftApproved, setStaffDraftApproved] = useState<Record<string, boolean>>({});
   const t = (text: string) => lang === "en" ? EN[text] || text : text;
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   const selected = cases.find((item) => item.id === selectedId) || cases[0];
@@ -392,11 +449,23 @@ export default function Home() {
   function updateStatus(id: string, status: Status) {
     setCases((current) => current.map((item) => item.id === id ? { ...item, status } : item));
   }
+  function toggleReportCase(id: string) {
+    setWeeklyReportSent(false);
+    setReportCaseIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  }
+  function sendWeeklyReport() {
+    if (!reportCaseIds.length) return;
+    setWeeklyReportSent(true);
+  }
+  function approveStaffDraft(id: string) {
+    setStaffDraftApproved((current) => ({ ...current, [id]: true }));
+  }
   function runDemo() {
     setRunning(true);
     window.setTimeout(() => {
       setRunning(false);
       setLastRun(new Intl.DateTimeFormat(lang === "en" ? "en-US" : "ja-JP", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date()));
+      setWeeklyReportSent(false);
       setView("review");
     }, 850);
   }
@@ -419,19 +488,19 @@ export default function Home() {
   return (
     <main className="appShell">
       <aside className="sidebar">
-        <div className="brand"><span className="brandMark">P</span><div><strong>PENCIL</strong><small>PEOPLE BRIDGE</small></div></div>
+        <div className="brand"><span className="brandMark">P</span><div><strong>PENCIL <em>V2</em></strong><small>PEOPLE BRIDGE</small></div></div>
         <nav className="mainNav" aria-label={lang === "en" ? "Main navigation" : "メインナビゲーション"}>
           <button className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}><span>01</span>{t("概要")}</button>
           <button className={view === "pipeline" ? "active" : ""} onClick={() => setView("pipeline")}><span>02</span>{t("データ登録・検知")}</button>
           <button className={view === "review" ? "active" : ""} onClick={() => setView("review")}><span>03</span>{t("確認キュー")}<b>{reviewCount}</b></button>
           <button className={view === "architecture" ? "active" : ""} onClick={() => setView("architecture")}><span>04</span>{t("接続設計")}</button>
         </nav>
-        <div className="sidebarFoot"><span className="demoDot" /><div><strong>CONCEPT DEMO</strong><small>{t("実データ・実APIは未接続")}</small></div></div>
+        <div className="sidebarFoot"><span className="demoDot" /><div><strong>V2 · ENGINEER FEEDBACK</strong><small>{t("自動連携を模した架空データです")}</small></div></div>
       </aside>
 
       <section className="workspace">
         <header className="topbar">
-          <div><span className="eyebrow">HR REVIEW CONSOLE</span><h1>{view === "overview" ? t("共有理解のズレを、案件単位で見つける。") : view === "pipeline" ? t("実データから問題検知までを動かす。") : view === "review" ? t("今週の確認キュー") : t("読み取り専用パイロット設計")}</h1></div>
+          <div><span className="eyebrow">PENCIL BRIDGE V2 · HR REVIEW CONSOLE</span><h1>{view === "overview" ? t("共有理解のズレを、案件単位で見つける。") : view === "pipeline" ? t("実データから問題検知までを動かす。") : view === "review" ? t("今週の確認キュー") : t("読み取り専用パイロット設計")}</h1></div>
           <div className="topActions">
             <div className="languageToggle" aria-label="Language">
               <button className={lang === "ja" ? "active" : ""} onClick={() => setLang("ja")}>日本語</button>
@@ -458,11 +527,16 @@ export default function Home() {
             </article>
             <article className="panel sourcePanel">
               <header className="panelHeader"><div><span className="eyebrow">READ-ONLY INPUT</span><h2>{t("照合した記録")}</h2></div><span className="syncState"><i />{t("正常")}</span></header>
-              <div className="sourceRows"><div><SourceBadge source="Backlog" lang={lang} /><strong>10</strong><small>{t("課題")}</small></div><div><SourceBadge source="Chatwork" lang={lang} /><strong>15</strong><small>{t("メッセージ")}</small></div><div><SourceBadge source="会議記録" lang={lang} /><strong>9</strong><small>{t("決定事項")}</small></div></div>
+              <div className="sourceRows"><div><SourceBadge source="Backlog" lang={lang} /><strong>10</strong><small>{t("課題")}</small></div><div><SourceBadge source="Chatwork" lang={lang} /><strong>15</strong><small>{t("メッセージ")}</small></div><div><SourceBadge source="会議記録" lang={lang} /><strong>9</strong><small>{t("決定事項")}</small></div><div><SourceBadge source="Box" lang={lang} /><strong>40</strong><small>{t("ファイル")}</small></div></div>
               <footer><span>{t("最終実行")}</span><strong>{t(lastRun)}</strong></footer>
             </article>
           </section>
-          <section className="workflowStrip"><div><span>1</span><p><strong>{t("案件IDで集約")}</strong><small>{t("人ではなく成果物を軸にする")}</small></p></div><i>→</i><div><span>2</span><p><strong>{t("判断履歴を照合")}</strong><small>{t("変更・矛盾・記録漏れを検知")}</small></p></div><i>→</i><div><span>3</span><p><strong>{t("根拠付きで提示")}</strong><small>{t("元の記録まで必ず戻れる")}</small></p></div><i>→</i><div><span>4</span><p><strong>{t("HRが確認")}</strong><small>{t("面談候補または誤検知を記録")}</small></p></div></section>
+          <section className="weeklyReportPanel">
+            <div className="weeklyReportLead"><span className="eyebrow">V2 · HR DELIVERY</span><h2>{t("週次HRレポート")}</h2><p>{t("優先案件と確認質問をHRにまとめて送ります")}</p></div>
+            <div className="weeklyReportCases">{reportCaseIds.slice(0, 3).map((id) => { const item = cases.find((entry) => entry.id === id); return item ? <span key={id}><b>{id}</b>{t(item.title)}</span> : null; })}</div>
+            <div className="weeklyReportAction"><small className={weeklyReportSent ? "sent" : ""}><i />{weeklyReportSent ? t("HRへ送信済み") : t("通知待ち")}</small><strong>{reportCaseIds.length} {t("件の案件を含む")}</strong><button onClick={sendWeeklyReport} disabled={!reportCaseIds.length || weeklyReportSent}>{weeklyReportSent ? t("HRへ送信済み") : t("HRへ週次レポートを送信")}</button></div>
+          </section>
+          <section className="workflowStrip"><div><span>1</span><p><strong>{t("自動収集")}</strong><small>{t("Chatwork・Backlog・会議記録を読み取り")}</small></p></div><i>→</i><div><span>2</span><p><strong>{t("Boxワークスペース")}</strong><small>{t("同じ場所にトランスクリプトと参照IDを集約")}</small></p></div><i>→</i><div><span>3</span><p><strong>{t("30分バッチ分析")}</strong><small>{t("定義済みシグナルで案件単位に検知")}</small></p></div><i>→</i><div><span>4</span><p><strong>{t("HRへ通知")}</strong><small>{t("優先案件を週次レポートまたは通知で共有")}</small></p></div></section>
         </div>}
 
         {view === "review" && <div className="content reviewView">
@@ -471,29 +545,35 @@ export default function Home() {
             <div className="caseQueue"><div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong>{item.foreignStaff && <em className="caseForeignBadge">{t("外国籍スタッフ関連")}</em>}<span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong><span>{t("信頼度")} {item.confidence}%</span></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
             <article className="caseDetail">
               <header className="detailHeader"><div><span className={"statusPill " + statusClass[selected.status]}>{t(selected.status)}</span>{selected.foreignStaff && <span className="caseForeignBadge">{t("外国籍スタッフ関連")}</span>}<small>{selected.id} ・ {t(selected.owner)}</small><h2>{t(selected.title)}</h2></div><div className="confidence"><span>{t("検知信頼度")}</span><strong>{selected.confidence}<small>%</small></strong></div></header>
-              <section className="findingBox"><span>{t("検知理由")}</span><strong>{t(selected.signal)}</strong><p>{t(selected.summary)}</p><div className="reworkScale"><div><span>{t("手戻り")} <b>{selected.rework}{lang === "ja" ? "回" : ""}</b></span><small>{t("部署平均")} {selected.average.toFixed(1)}{lang === "ja" ? "回" : ""}</small></div><div className="track"><i style={{ width: Math.min(100, selected.rework / 6 * 100) + "%" }} /><b style={{ left: selected.average / 6 * 100 + "%" }} /></div></div></section>
-              <section className="evidenceSection"><div className="sectionTitle"><div><span className="eyebrow">SOURCE TRACE</span><h3>{t("判断履歴と根拠")}</h3></div><small>{t("赤線 = 検知に使った記録")}</small></div><div className="timeline">{selected.evidence.map((entry, index) => <div className={entry.flagged ? "flagged" : ""} key={selected.id + "-" + index}><span className="timelineLine" /><SourceBadge source={entry.source} lang={lang} /><small>{t(entry.date)} ・ {t(entry.role)}</small><p>{t(entry.text)}</p></div>)}</div></section>
-              <section className="questionBox"><div><span>HR</span><small>{t("確認時の質問案")}</small></div><p>{lang === "ja" ? "「" : "“"}{t(selected.question)}{lang === "ja" ? "」" : "”"}</p></section>
-              <footer className="detailActions"><button className="textButton" onClick={() => updateStatus(selected.id, "誤検知")}>{t("誤検知として記録")}</button><div><button className="outlineButton" onClick={() => updateStatus(selected.id, "面談候補")}>{t("面談候補に追加")}</button><button className="confirmButton" onClick={() => updateStatus(selected.id, "確認済み")}>{t("確認済みにする")}</button></div></footer>
+              <section className="outputModeBar"><div><span className="eyebrow">{t("出力フォーマット")}</span><strong>{detailMode === "hr" ? t("HR限定") : t("HR承認後のみ共有")}</strong></div><div className="segmented"><button className={detailMode === "hr" ? "active" : ""} onClick={() => setDetailMode("hr")}>{t("HR専用分析")}</button><button className={detailMode === "staff" ? "active" : ""} onClick={() => setDetailMode("staff")}>{t("スタッフ向け確認文")}</button></div></section>
+              {detailMode === "hr" ? <>
+                <section className="findingBox"><span>{t("検知理由")}</span><strong>{t(selected.signal)}</strong><p>{t(selected.summary)}</p><div className="reworkScale"><div><span>{t("手戻り")} <b>{selected.rework}{lang === "ja" ? "回" : ""}</b></span><small>{t("部署平均")} {selected.average.toFixed(1)}{lang === "ja" ? "回" : ""}</small></div><div className="track"><i style={{ width: Math.min(100, selected.rework / 6 * 100) + "%" }} /><b style={{ left: selected.average / 6 * 100 + "%" }} /></div></div></section>
+                <section className="evidenceSection"><div className="sectionTitle"><div><span className="eyebrow">SOURCE TRACE</span><h3>{t("判断履歴と根拠")}</h3></div><small>{t("赤線 = 検知に使った記録")}</small></div><div className="timeline">{selected.evidence.map((entry, index) => <div className={entry.flagged ? "flagged" : ""} key={selected.id + "-" + index}><span className="timelineLine" /><SourceBadge source={entry.source} lang={lang} /><small>{t(entry.date)} ・ {t(entry.role)}{entry.source === "会議記録" && <em>{t("自動文字起こし")} · {t("文字起こし信頼度")} 82%</em>}</small><p>{t(entry.text)}</p></div>)}</div></section>
+                <section className="questionBox"><div><span>HR</span><small>{t("確認時の質問案")}</small></div><p>{lang === "ja" ? "「" : "“"}{t(selected.question)}{lang === "ja" ? "」" : "”"}</p></section>
+                <footer className="detailActions"><button className="textButton" onClick={() => updateStatus(selected.id, "誤検知")}>{t("誤検知として記録")}</button><div><button className={reportCaseIds.includes(selected.id) ? "reportButton selected" : "reportButton"} onClick={() => toggleReportCase(selected.id)}>{reportCaseIds.includes(selected.id) ? t("レポートから外す") : t("レポートに含める")}</button><button className="outlineButton" onClick={() => updateStatus(selected.id, "面談候補")}>{t("面談候補に追加")}</button><button className="confirmButton" onClick={() => updateStatus(selected.id, "確認済み")}>{t("確認済みにする")}</button></div></footer>
+              </> : <>
+                <section className="staffDraftPanel"><header><div><span className="eyebrow">STAFF CLARIFICATION</span><h3>{t("スタッフ向け確認文")}</h3></div><span className={staffDraftApproved[selected.id] ? "approved" : "locked"}>{staffDraftApproved[selected.id] ? t("共有承認済み") : t("HR承認後のみ共有")}</span></header><div className="staffDraftBody"><p>{t("この案件について、異なる指示が記録されています。作業を続ける前に、次の点を確認してください。")}</p><blockquote>{t(selected.question)}</blockquote><small>{t("これは状況確認のためのメッセージであり、個人の評価ではありません。")}</small></div><footer>{t("スタッフに見せる内容には、HRの内部分析・信頼度・人物評価を含めません。")}</footer></section>
+                <footer className="staffDraftActions"><span>{t("HR承認後のみ共有")}</span><button onClick={() => approveStaffDraft(selected.id)} disabled={Boolean(staffDraftApproved[selected.id])}>{staffDraftApproved[selected.id] ? t("共有承認済み") : t("共有をHRが承認")}</button></footer>
+              </>}
             </article>
           </section>
         </div>}
 
         {view === "architecture" && <div className="content architectureView">
-          <section className="architectureIntro"><div><span className="eyebrow">ENGINEERING REVIEW</span><h2>{lang === "en" ? <>Before AI accuracy, today&apos;s key question is:<br />Can the records be linked safely?</> : <>今日確認したいのは、AI精度より先に<br />「安全に紐づけられるか」です。</>}</h2></div><p>{t("最初のパイロットは1部署・4週間・読み取り専用を想定。個人スコアは作らず、Backlog課題IDを中心に、Chatworkと会議記録を接続します。")}</p></section>
+          <section className="architectureIntro"><div><span className="eyebrow">V2 · ENGINEERING FEEDBACK</span><h2>{lang === "en" ? <>From scattered records<br />to an HR notification.</> : <>分散した記録から<br />HRへの通知まで。</>}</h2></div><p>{t("エンジニアのフィードバックを、収集・分析・通知までの実行フローに反映しました。")}</p></section>
           <section className="dataFlow">
-            <article><div className="systemIcon backlog">B</div><span>INPUT 01</span><strong>Backlog</strong><p>{t("課題ID、状態変更、コメント、担当ロール、更新時刻")}</p><small>READ ONLY</small></article><i>+</i>
-            <article><div className="systemIcon chatwork">C</div><span>INPUT 02</span><strong>Chatwork</strong><p>{t("課題IDを含むメッセージ、投稿時刻、スレッド参照")}</p><small>READ ONLY</small></article><i>+</i>
-            <article><div className="systemIcon meeting">M</div><span>INPUT 03</span><strong>{t("会議記録")}</strong><p>{t("決定事項、会議日時、関連案件、決定者ロール")}</p><small>READ ONLY</small></article><i>→</i>
-            <article className="bridgeNode"><div className="systemIcon bridge">P</div><span>MATCHING LAYER</span><strong>Issue Graph</strong><p>{t("課題ID・URL・期間から同じ成果物の判断履歴を構成")}</p><small>PROTOTYPE</small></article>
+            <article><div className="systemCluster"><span className="systemIcon chatwork">C</span><span className="systemIcon backlog">B</span><span className="systemIcon meeting">M</span></div><span>STEP 01</span><strong>{t("入力ソース")}</strong><p>{t("承認済み範囲のChatwork・Backlog・会議記録")}</p><small>{t("デモ接続")}</small></article><i>→</i>
+            <article><div className="systemIcon box">X</div><span>STEP 02</span><strong>{t("自動集約")}</strong><p>{t("Boxにトランスクリプト・参照ID・処理状態を集約")}</p><small>WORKSPACE</small></article><i>→</i>
+            <article><div className="systemIcon bridge">30</div><span>STEP 03</span><strong>{t("定義済みアナライザー")}</strong><p>{t("矛盾・反復確認・記録漏れ・手戻りを30分ごとに確認")}</p><small>30 MIN BATCH</small></article><i>→</i>
+            <article className="bridgeNode"><div className="systemIcon bridge">HR</div><span>STEP 04</span><strong>{t("2つの安全な出力")}</strong><p>{t("HR専用レポートと、HR承認後のスタッフ確認文")}</p><small>HUMAN REVIEW</small></article>
           </section>
           <section className="architectureGrid">
-            <article className="panel questionsPanel"><header className="panelHeader"><div><span className="eyebrow">5 QUESTIONS</span><h2>{t("エンジニアに聞きたいこと")}</h2></div></header><ol>
-              <li><span>01</span><p><strong>{t("Chatwork内でBacklog課題IDはどの程度使われていますか？")}</strong><small>{t("IDがない会話を、どの情報なら安全に同じ案件へ紐づけられそうですか？")}</small></p></li>
-              <li><span>02</span><p><strong>{t("状態変更と差し戻し回数はAPI履歴から取得できますか？")}</strong><small>{t("「手戻り」を推測ではなく、どのイベントで定義すべきでしょうか？")}</small></p></li>
-              <li><span>03</span><p><strong>{t("会議記録に案件IDやURLを追加する運用は現実的ですか？")}</strong><small>{t("追加入力を増やさず、紐づけ精度を上げる方法を確認したいです。")}</small></p></li>
-              <li><span>04</span><p><strong>{t("読み取り専用トークンを部署・期間で制限できますか？")}</strong><small>{t("4週間の限定パイロットで必要な最小権限を確認したいです。")}</small></p></li>
-              <li><span>05</span><p><strong>{t("保存しない設計は可能ですか？")}</strong><small>{t("原文は各システムに残し、Bridge側には参照IDとHR判断だけを保持する案です。")}</small></p></li>
+            <article className="panel questionsPanel"><header className="panelHeader"><div><span className="eyebrow">5 CHANGES</span><h2>{t("会議フィードバックをV2に反映")}</h2></div></header><ol>
+              <li><span>01</span><p><strong>{t("検知ワードを単語だけで判断しない")}</strong><small>{t("前後の会話・同一案件・後続質問を組み合わせて判定")}</small></p></li>
+              <li><span>02</span><p><strong>{t("Boxと各ツールの自動集約を表現")}</strong><small>{t("実APIの代わりに読み取り専用デモ接続で動作を再現")}</small></p></li>
+              <li><span>03</span><p><strong>{t("HR用とスタッフ用の出力を分離")}</strong><small>{t("スタッフ向け文面はHR承認後のみ共有可能")}</small></p></li>
+              <li><span>04</span><p><strong>{t("HR不在時は週次レポートで届ける")}</strong><small>{t("優先案件・根拠・確認質問を1つの通知に集約")}</small></p></li>
+              <li><span>05</span><p><strong>{t("処理完了後の通知状態を表示")}</strong><small>{t("30分バッチをデモ実行し、完了からHR通知まで確認可能")}</small></p></li>
             </ol></article>
             <article className="panel guardrailPanel"><header className="panelHeader"><div><span className="eyebrow">PILOT GUARDRAILS</span><h2>{t("最初からしないこと")}</h2></div></header><ul>
               <li><span>×</span><p><strong>{t("社員・管理職のスコアリング")}</strong><small>{t("案件と成果物だけを分析単位にする")}</small></p></li>
