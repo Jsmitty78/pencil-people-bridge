@@ -17,6 +17,7 @@ The current bridge-system-v1 demo includes:
 - HR actions for interview follow-up, confirmation, and false-positive feedback
 - a working CSV export for the weekly review
 - a connection-design screen for engineering validation
+- a complete Japanese/English language toggle, including case evidence and CSV output
 - responsive layouts for laptop, tablet, and phone
 
 Every issue ID, message, count, average, and threshold in the demo is fictional.
