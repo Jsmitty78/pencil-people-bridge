@@ -1,83 +1,74 @@
-# PENCIL Bridge — Permission-Gated Excel Workflow Prototype
+# PENCIL Bridge
 
-Concept prototype aligned with the August 24, 2026 system design document.
+An HR-only concept prototype for finding gaps in shared understanding across existing operational records.
 
-> **Information is communicated. However, it is not retained as shared understanding.**
+> From translation to shared understanding.
 
-## What this branch demonstrates
+## What the demo shows
 
-The `bridge-system-v1` branch demonstrates an HR-only weekly review concept without asking staff to adopt another tool:
+PENCIL Bridge groups approved Backlog, Chatwork, and meeting records around an issue or work product. It then prepares evidence-backed review candidates for HR without asking employees to use another tool.
 
-0. Company permission, scope, retention, anonymization, and HR access are agreed before any connection.
-1. Approved Backlog, Chatwork, and meeting records would be read without additional staff input.
-2. Records are grouped at issue/work-product level rather than employee level.
-3. Rework, contradictory instructions, off-record references, and cross-channel mismatches are identified as review candidates.
-4. Only flagged issues, evidence, and situation-specific interview questions are prepared for HR.
-5. The weekly output is formatted as the Excel workbook HR already uses.
-6. HR can add a finding to interview notes or record it as a false positive.
+The current bridge-system-v1 demo includes:
 
-The included records, issue IDs, messages, counts, averages, and thresholds are fictional demonstration data.
+- a weekly overview with the small number of issues that need attention
+- an interactive HR review queue with open and completed filters
+- source-level evidence tracing across Backlog, Chatwork, and meeting records
+- issue-level rework and cross-channel mismatch signals
+- HR actions for interview follow-up, confirmation, and false-positive feedback
+- a working CSV export for the weekly review
+- a connection-design screen for engineering validation
+- responsive layouts for laptop, tablet, and phone
 
-Design reference: [PENCIL Bridge — Excel Workflow Concept](https://www.figma.com/design/RAX4Z62Ib6LLJRqA1WnvuS)
+Every issue ID, message, count, average, and threshold in the demo is fictional.
 
-## Honest prototype boundary
+## Proposed workflow
 
-Implemented now:
-
-- issue-level fictional dataset
-- deterministic rework counting
-- off-record reference detection
-- cross-channel comparison
-- optional local Ollama NLI with deterministic fallback
-- HR weekly-review dashboard
-- Excel-style weekly summary, review-candidate, interview-note, and false-positive sheets
-- suggested interview questions
-- false-positive and interview-queue interactions
-- no employee names, emotion scores, or individual rankings
-
-Future permission-gated pilot work, not implemented during the internship:
-
-- real Backlog API connector
-- real Chatwork API connector
-- internal meeting-minutes connector
-- automated role-label anonymization at retrieval
-- Excel file generation and approved storage-location integration
-- persistent false-positive storage
-- privacy, consent, access-control, and APPI review
+1. Agree on company approval, pilot department, access scope, retention, and HR permissions.
+2. Read only the minimum approved records.
+3. Group records around a Backlog issue ID or work product, never around a person.
+4. Detect contradictory instructions, undocumented decisions, and unusual rework.
+5. Show the original evidence and a situation-specific question to HR.
+6. Let HR confirm, dismiss, or add the case to interview follow-up.
 
 ## Run locally
 
-```bash
-git clone https://github.com/Jsmitty78/pencil-people-bridge.git
-cd pencil-people-bridge
-git checkout bridge-system-v1
-npm install
+    git clone https://github.com/Jsmitty78/pencil-people-bridge.git
+    cd pencil-people-bridge
+    git checkout bridge-system-v1
+    npm install
+    npm run dev
 
-# Recommended for the boss demonstration
-npm run dev
+Open http://localhost:3000.
 
-# Optional only after local NLI has been tested
-ollama pull qwen3:4b
-ollama serve
-ENABLE_LOCAL_NLI=true npm run dev
-```
+## Honest prototype boundary
 
-Open `http://localhost:3000` and select **架空データで動作を見る**.
+Implemented:
 
-For the most reliable boss demonstration, run `npm run dev` without `ENABLE_LOCAL_NLI`. The prototype then uses clearly labeled deterministic concept-demo rules. Enable local NLI only when Ollama has already been tested on the presentation laptop.
+- fictional issue-level data
+- interactive review workflow
+- evidence timelines
+- review-state feedback
+- CSV export
+- proposed read-only connection model
 
-## Presentation framing
+Not implemented:
 
-Do not claim that PENCIL's systems are already connected. Present this build as:
+- real Backlog, Chatwork, or meeting-record connectors
+- persistent HR decisions
+- production authentication and access controls
+- an approved storage or retention policy
+- a completed privacy, security, or APPI review
 
-> A working concept prototype that shows how the experience could work after permission is granted. It uses fictional issue-level records, has no live connectors, and prepares the result in the Excel format HR already uses. A later limited pilot could replace the fictional adapters with approved, privacy-reviewed read-only connectors.
-
-## Safety principles
+## Guardrails
 
 - HR-only output
-- issue/work-product level, never employee scoring
-- no emotion or psychological-safety scoring
-- no diagnosis or sensitive-trait inference
-- signals are review candidates, not conclusions
-- human HR confirmation is required
-- no confidential PENCIL data in the repository
+- issue and work-product analysis, never employee scoring
+- no emotion, stress, personality, or sensitive-trait inference
+- no automated HR decisions
+- every signal is a review candidate, not a conclusion
+- original evidence must remain available to the human reviewer
+- no confidential PENCIL data is stored in this repository
+
+## Suggested pilot
+
+Start with one approved department for four weeks using read-only access. A useful success test is whether HR can complete the weekly review in under 30 minutes and identify at least one real source of preventable rework earlier than the current process.
