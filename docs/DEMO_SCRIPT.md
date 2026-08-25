@@ -41,16 +41,7 @@ Open Review queue / 確認キュー.
 3. Show Mark false positive, Add to follow-up, and Mark reviewed.
 4. Explain that AI produces review candidates, while HR makes the decision.
 
-### 4. Impact and roadmap — 60 seconds
-
-Open Impact & roadmap / 効果・ロードマップ.
-
-1. Show the HR, manager, and company Before → After tables.
-2. Explain how detection changes the process from reactive interviews to evidence-backed early review.
-3. Point out that process gaps are separated from individual language ability.
-4. Show Detect → Understand → Act → Improve.
-
-### 5. Pilot and connection design — 60 seconds
+### 4. Pilot and connection design — 60 seconds
 
 Open Connection design / 接続設計 and explain the proposed pilot:
 
