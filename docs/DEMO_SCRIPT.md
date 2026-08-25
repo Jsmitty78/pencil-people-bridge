@@ -23,7 +23,7 @@ Japanese:
 Open Data & Detection / データ登録・検知.
 
 1. Select Load 10 fictional cases / 架空の10案件を読み込む.
-2. Point out that two cases and six messages are stored in the browser-local database.
+2. Point out that 10 cases and 40 messages are stored in the browser-local database.
 3. Select Run detection pipeline / 検知パイプラインを実行.
 4. Show the detected contradiction, undocumented verbal decision, rework count, and original evidence.
 5. Explain that optional local Ollama analysis can supplement the deterministic checks.
@@ -41,22 +41,18 @@ Open Review queue / 確認キュー.
 3. Show Mark false positive, Add to follow-up, and Mark reviewed.
 4. Explain that AI produces review candidates, while HR makes the decision.
 
-### 4. Business value — 60 seconds
+### 4. Impact and roadmap — 60 seconds
 
-Open Business value / 事業価値.
+Open Impact & roadmap / 効果・ロードマップ.
 
 1. Show the HR, manager, and company Before → After tables.
-2. Change one calculator assumption to demonstrate transparent calculation.
-3. State that the figures are illustrative and must be replaced with PENCIL-validated inputs.
-4. Explain the three value sources: HR discovery time, avoided rework, and faster resolution.
+2. Explain how detection changes the process from reactive interviews to evidence-backed early review.
+3. Point out that process gaps are separated from individual language ability.
+4. Show Detect → Understand → Act → Improve.
 
-### 5. Pilot and roadmap — 60 seconds
+### 5. Pilot and connection design — 60 seconds
 
-On Business value, show:
-
-Detect → Understand → Act → Improve
-
-Then open Connection design / 接続設計 and explain the proposed pilot:
+Open Connection design / 接続設計 and explain the proposed pilot:
 
 - one approved department
 - four weeks
