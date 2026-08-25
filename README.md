@@ -1,4 +1,4 @@
-# PENCIL Bridge
+# PENCIL Bridge V2
 
 An HR-only concept prototype for finding gaps in shared understanding across existing operational records.
 
@@ -8,7 +8,7 @@ An HR-only concept prototype for finding gaps in shared understanding across exi
 
 PENCIL Bridge groups approved Backlog, Chatwork, and meeting records around an issue or work product. It then prepares evidence-backed review candidates for HR without asking employees to use another tool.
 
-The current bridge-system-v1 demo includes:
+V2 incorporates the Aug 25 engineer feedback and includes:
 
 - a weekly overview with the small number of issues that need attention
 - an interactive HR review queue with open and completed filters
@@ -23,6 +23,13 @@ The current bridge-system-v1 demo includes:
 - a working stored-data to detection pipeline using the existing detection API
 - a staff-feedback form saved locally with each detected case
 - responsive layouts for laptop, tablet, and phone
+- simulated read-only connections for Chatwork, Backlog, meeting transcripts, and a Box workspace
+- a visible analyzer dictionary that defines six communication signals before analysis
+- contextual acknowledgement-followed-by-clarification detection instead of treating a keyword as proof of understanding
+- a simulated 30-minute batch status from collection through analysis
+- an interactive weekly HR report and notification state
+- separate private HR analysis and HR-approved staff clarification formats
+- transcript-confidence labels for meeting evidence
 
 Presentation guide: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
 
@@ -35,7 +42,8 @@ Every issue ID, message, count, average, and threshold in the demo is fictional.
 3. Group records around a Backlog issue ID or work product, never around a person.
 4. Detect contradictory instructions, undocumented decisions, and unusual rework.
 5. Show the original evidence and a situation-specific question to HR.
-6. Let HR confirm, dismiss, or add the case to interview follow-up.
+6. Add selected cases to a weekly HR report and show the notification state.
+7. Let HR confirm, dismiss, add the case to interview follow-up, or approve a neutral staff clarification draft.
 
 ## Run locally
 
@@ -61,10 +69,15 @@ Implemented:
 - review-state feedback
 - CSV export
 - proposed read-only connection model
+- simulated Box collection workspace and connector states
+- analyzer signal dictionary and contextual acknowledgement checks
+- weekly HR report delivery simulation
+- separate HR and staff-safe output formats
 
 Not implemented:
 
 - real Backlog, Chatwork, or meeting-record connectors
+- real Box ingestion or external notifications
 - persistent HR decisions
 - production authentication and access controls
 - an approved storage or retention policy
