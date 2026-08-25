@@ -22,7 +22,7 @@ Japanese:
 
 Open Data & Detection / データ登録・検知.
 
-1. Select Load fictional samples / 架空サンプルを読み込む.
+1. Select Load 10 fictional cases / 架空の10案件を読み込む.
 2. Point out that two cases and six messages are stored in the browser-local database.
 3. Select Run detection pipeline / 検知パイプラインを実行.
 4. Show the detected contradiction, undocumented verbal decision, rework count, and original evidence.
