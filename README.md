@@ -18,6 +18,10 @@ The current bridge-system-v1 demo includes:
 - a working CSV export for the weekly review
 - a connection-design screen for engineering validation
 - a complete Japanese/English language toggle, including case evidence and CSV output
+- a case-entry tool for registering multiple Backlog, Chatwork, and meeting-log cases
+- a persistent browser-local IndexedDB database for privacy-safe demonstrations
+- a working stored-data to detection pipeline using the existing detection API
+- a staff-feedback form saved locally with each detected case
 - responsive layouts for laptop, tablet, and phone
 
 Every issue ID, message, count, average, and threshold in the demo is fictional.
@@ -46,6 +50,9 @@ Open http://localhost:3000.
 Implemented:
 
 - fictional issue-level data
+- local case and feedback persistence
+- manual communication-log input
+- deterministic detection with optional local Ollama NLI
 - interactive review workflow
 - evidence timelines
 - review-state feedback
