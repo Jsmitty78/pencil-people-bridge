@@ -216,7 +216,8 @@ button { font:inherit; }
 .databaseList>div { display:grid; grid-template-columns:67px 1fr auto; align-items:center; gap:10px; min-height:65px; border-bottom:1px solid var(--line); }
 .databaseList>div>span { color:var(--red); font:800 8px/1 Arial,sans-serif; }
 .databaseList p { display:flex; flex-direction:column; gap:5px; margin:0; }
-.databaseList p strong { font-size:9px; }
+.databaseList p strong { display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-size:9px; }
+.databaseList p strong em { padding:3px 5px; border:1px solid #b9d7c6; background:var(--green-soft); color:var(--green); font:800 6px/1 Arial,sans-serif; font-style:normal; letter-spacing:.04em; }
 .databaseList p small { color:var(--muted); font-size:7px; }
 .databaseList button { border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:7px; text-decoration:underline; }
 .noCases { margin:35px 0; color:var(--muted); font-size:9px; text-align:center; }
