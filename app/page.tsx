@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import PipelineLab from "./PipelineLab";
+import BusinessValue from "./BusinessValue";
 
 type Source = "Backlog" | "Chatwork" | "会議記録";
 type Severity = "high" | "medium" | "normal";
 type Status = "未確認" | "面談候補" | "確認済み" | "誤検知";
-type View = "overview" | "pipeline" | "review" | "architecture";
+type View = "overview" | "pipeline" | "review" | "business" | "architecture";
 type Lang = "ja" | "en";
 type Evidence = { source: Source; date: string; role: string; text: string; flagged?: boolean };
 type ReviewCase = {
@@ -101,12 +102,14 @@ const EN: Record<string, string> = {
   "概要": "Overview",
   "確認キュー": "Review queue",
   "データ登録・検知": "Data & detection",
+  "事業価値": "Business value",
   "接続設計": "Connection design",
   "実データ・実APIは未接続": "No live data or APIs connected",
   "共有理解のズレを、案件単位で見つける。": "Find gaps in shared understanding, issue by issue.",
   "今週の確認キュー": "This week's review queue",
   "読み取り専用パイロット設計": "Read-only pilot design",
   "実データから問題検知までを動かす。": "Run the complete data-to-detection pipeline.",
+  "改善効果を、時間と金額で説明する。": "Explain the impact in time and financial value.",
   "CSV出力": "Export CSV",
   "照合中...": "Analyzing...",
   "架空データで再実行": "Run fictional demo",
@@ -247,14 +250,15 @@ export default function Home() {
           <button className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}><span>01</span>{t("概要")}</button>
           <button className={view === "pipeline" ? "active" : ""} onClick={() => setView("pipeline")}><span>02</span>{t("データ登録・検知")}</button>
           <button className={view === "review" ? "active" : ""} onClick={() => setView("review")}><span>03</span>{t("確認キュー")}<b>{reviewCount}</b></button>
-          <button className={view === "architecture" ? "active" : ""} onClick={() => setView("architecture")}><span>04</span>{t("接続設計")}</button>
+          <button className={view === "business" ? "active" : ""} onClick={() => setView("business")}><span>04</span>{t("事業価値")}</button>
+          <button className={view === "architecture" ? "active" : ""} onClick={() => setView("architecture")}><span>05</span>{t("接続設計")}</button>
         </nav>
         <div className="sidebarFoot"><span className="demoDot" /><div><strong>CONCEPT DEMO</strong><small>{t("実データ・実APIは未接続")}</small></div></div>
       </aside>
 
       <section className="workspace">
         <header className="topbar">
-          <div><span className="eyebrow">HR REVIEW CONSOLE</span><h1>{view === "overview" ? t("共有理解のズレを、案件単位で見つける。") : view === "pipeline" ? t("実データから問題検知までを動かす。") : view === "review" ? t("今週の確認キュー") : t("読み取り専用パイロット設計")}</h1></div>
+          <div><span className="eyebrow">HR REVIEW CONSOLE</span><h1>{view === "overview" ? t("共有理解のズレを、案件単位で見つける。") : view === "pipeline" ? t("実データから問題検知までを動かす。") : view === "review" ? t("今週の確認キュー") : view === "business" ? t("改善効果を、時間と金額で説明する。") : t("読み取り専用パイロット設計")}</h1></div>
           <div className="topActions">
             <div className="languageToggle" aria-label="Language">
               <button className={lang === "ja" ? "active" : ""} onClick={() => setLang("ja")}>日本語</button>
@@ -266,6 +270,7 @@ export default function Home() {
         </header>
 
         {view === "pipeline" && <PipelineLab lang={lang} />}
+        {view === "business" && <BusinessValue lang={lang} />}
 
         {view === "overview" && <div className="content overviewView">
           <section className="notice"><div><span>DEMO DATA</span><strong>{t("この画面の案件・メッセージ・数値はすべて架空です。")}</strong></div><p>{t("AIは確認候補と根拠を整理するだけです。人や感情を評価せず、最終判断はHRが行います。")}</p></section>
