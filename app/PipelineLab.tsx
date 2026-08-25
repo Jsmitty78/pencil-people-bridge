@@ -249,6 +249,7 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
   const [logs, setLogs] = useState("");
   const [report, setReport] = useState<DetectionResponse | null>(null);
   const [busy, setBusy] = useState(false);
+  const [batchStatus, setBatchStatus] = useState<"idle" | "collecting" | "ready">("idle");
   const [message, setMessage] = useState("");
   const [feedback, setFeedback] = useState<Record<string, { useful: string; welcome: string; usable: string; note: string }>>({});
 
@@ -274,8 +275,10 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
 
   async function loadSamples() {
     setMessage("");
+    setBatchStatus("collecting");
     for (const item of SAMPLE_CASES) await dbPut("cases", item);
     await refreshCases();
+    setBatchStatus("idle");
     const sampleMessages = SAMPLE_CASES.reduce((total, item) => total + item.entries.length, 0);
     setMessage(en
       ? `${SAMPLE_CASES.length} fictional cases with ${sampleMessages} messages were saved locally.`
@@ -318,7 +321,7 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
       setMessage(en ? "Save or load at least one case first." : "先に案件を1件以上保存してください。");
       return;
     }
-    setBusy(true); setMessage(""); setReport(null);
+    setBusy(true); setBatchStatus("collecting"); setMessage(""); setReport(null);
     try {
       const response = await fetch("/api/detect", {
         method: "POST",
@@ -334,8 +337,10 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Analysis failed");
       setReport(body as DetectionResponse);
+      setBatchStatus("ready");
       setMessage(en ? "Analysis complete. Review the evidence below." : "分析が完了しました。下の根拠を確認してください。");
     } catch (error) {
+      setBatchStatus("idle");
       setMessage((en ? "Detection error: " : "検知エラー: ") + (error instanceof Error ? error.message : String(error)));
     } finally {
       setBusy(false);
@@ -357,11 +362,35 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
 
   return (
     <div className="content pipelineView">
+      <section className="v2SourceStrip">
+        <header><div><span className="eyebrow">V2 · SIMULATED CONNECTIONS</span><h2>{en ? "Records arrive without asking staff to re-enter them" : "スタッフの追加入力なしで、既存記録を集約"}</h2></div><p>{en ? "Read-only demo connections represent the engineer-proposed Box workspace." : "エンジニア提案のBoxワークスペースを、読み取り専用デモ接続で再現しています。"}</p></header>
+        <div className="connectorGrid">
+          <article><span className="connectorIcon chatwork">C</span><p><strong>Chatwork</strong><small>{en ? "Messages and thread references" : "メッセージ・スレッド参照"}</small></p><em><i />{en ? "Demo connected" : "デモ接続"}</em></article>
+          <article><span className="connectorIcon backlog">B</span><p><strong>Backlog</strong><small>{en ? "Issue IDs and status history" : "課題ID・状態変更履歴"}</small></p><em><i />{en ? "Demo connected" : "デモ接続"}</em></article>
+          <article><span className="connectorIcon meeting">M</span><p><strong>{en ? "Meeting transcripts" : "会議トランスクリプト"}</strong><small>{en ? "Decisions with confidence labels" : "決定事項・文字起こし信頼度"}</small></p><em><i />{en ? "Demo connected" : "デモ接続"}</em></article>
+          <article className="boxConnector"><span className="connectorIcon box">X</span><p><strong>Box Workspace</strong><small>{en ? "One place for references and processing status" : "参照ID・処理状態を同じ場所に集約"}</small></p><em><i />{en ? "Ready" : "準備完了"}</em></article>
+        </div>
+      </section>
+
+      <section className="analyzerDictionary">
+        <header><div><span className="eyebrow">ANALYZER DICTIONARY</span><h2>{en ? "Signals are defined before analysis" : "分析前に検知シグナルを定義"}</h2></div><small>{en ? "A keyword alone never creates an HR finding." : "単語だけではHR案件にしません。"}</small></header>
+        <div>
+          {[
+            [en ? "Changed instruction" : "指示変更", en ? "Compare the earlier decision with the later action." : "先の決定と後続指示を比較"],
+            [en ? "Repeated clarification" : "反復確認", en ? "An acknowledgement is followed by another question." : "了解後に同一案件で再質問"],
+            [en ? "Missing written decision" : "記録漏れ", en ? "Verbal instructions have no related decision record." : "口頭指示に紐づく決定記録がない"],
+            [en ? "Cross-channel conflict" : "チャネル間矛盾", en ? "Deadline, scope, or approver differs by source." : "締切・範囲・承認者がソースごとに違う"],
+            [en ? "Rework threshold" : "手戻り基準", en ? "Return count exceeds the agreed team threshold." : "差し戻し回数が合意した基準を超える"],
+            [en ? "Uncertain transcript" : "文字起こし不確実", en ? "Low-confidence speech is shown for human verification." : "低信頼の音声認識を人が再確認"],
+          ].map(([label, description], index) => <article key={label}><span>{String(index + 1).padStart(2, "0")}</span><p><strong>{label}</strong><small>{description}</small></p></article>)}
+        </div>
+      </section>
+
       <section className="pipelineSteps">
-        <div className="active"><span>1</span><p><strong>{en ? "Enter data" : "データ入力"}</strong><small>{en ? "Anonymized or fictional logs" : "匿名化・架空ログ"}</small></p></div>
-        <i>→</i><div className={storedCases.length ? "active" : ""}><span>2</span><p><strong>{en ? "Local database" : "ローカルDB"}</strong><small>{storedCases.length} {en ? "cases stored" : "案件保存"}</small></p></div>
-        <i>→</i><div className={report ? "active" : ""}><span>3</span><p><strong>{en ? "Detection" : "問題検知"}</strong><small>{en ? "Rules + optional local LLM" : "ルール＋任意のローカルLLM"}</small></p></div>
-        <i>→</i><div className={report ? "active" : ""}><span>4</span><p><strong>{en ? "Review & feedback" : "確認・フィードバック"}</strong><small>{en ? "Evidence-backed output" : "根拠付きの結果"}</small></p></div>
+        <div className="active"><span>1</span><p><strong>{en ? "Collect sources" : "ソース収集"}</strong><small>{en ? "Read-only demo connections" : "読み取り専用デモ接続"}</small></p></div>
+        <i>→</i><div className={storedCases.length ? "active" : ""}><span>2</span><p><strong>{en ? "Box workspace" : "Boxワークスペース"}</strong><small>{storedCases.length} {en ? "cases gathered" : "案件を集約"}</small></p></div>
+        <i>→</i><div className={batchStatus !== "idle" ? "active" : ""}><span>3</span><p><strong>{en ? "30-minute batch" : "30分バッチ"}</strong><small>{batchStatus === "collecting" ? (en ? "Processing…" : "処理中…") : batchStatus === "ready" ? (en ? "Analysis complete" : "分析完了") : (en ? "Ready to simulate" : "デモ実行待ち")}</small></p></div>
+        <i>→</i><div className={report ? "active" : ""}><span>4</span><p><strong>{en ? "HR output" : "HR出力"}</strong><small>{en ? "Evidence and notification-ready cases" : "根拠・通知対象を作成"}</small></p></div>
       </section>
 
       <section className="pipelineGrid">
