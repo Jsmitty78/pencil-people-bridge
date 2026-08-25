@@ -22,8 +22,6 @@ The current bridge-system-v1 demo includes:
 - a persistent browser-local IndexedDB database for privacy-safe demonstrations
 - a working stored-data to detection pipeline using the existing detection API
 - a staff-feedback form saved locally with each detected case
-- Before/After workflow impact for HR, managers, and the company
-- a Detect → Understand → Act → Improve product roadmap
 - responsive layouts for laptop, tablet, and phone
 
 Presentation guide: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
