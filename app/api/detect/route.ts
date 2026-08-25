@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 type Source = "meeting" | "backlog" | "chatwork";
-type SignalKind = "rework" | "contradiction" | "off_record" | "cross_channel";
+type SignalKind = "rework" | "contradiction" | "off_record" | "cross_channel" | "ack_then_clarify";
 type Lang = "ja" | "en";
 
 type LogEntry = {
@@ -50,6 +50,8 @@ const MAX_ENTRIES_PER_ISSUE = 60;
 const MAX_TEXT_LENGTH = 1500;
 
 const OFF_RECORD_PATTERN = /口頭|先ほど話|昨日話|前回と同じ|さっきの|別途相談|as discussed|verbally|talked earlier|same as before/i;
+const ACK_PATTERN = /わかりました|分かりました|了解しました|承知しました|understood|got it|i understand/i;
+const CLARIFICATION_PATTERN = /どちら|確認|不明|わかりません|分かりません|どの.*ルール|should i|which|not sure|could you confirm/i;
 
 const CONTRADICTION_RULES: ContradictionRule[] = [
   {
@@ -274,6 +276,11 @@ function uniqueContradictions(items: Contradiction[]) {
 
 function questionFor(issueId: string, signals: Signal[], lang: Lang) {
   const en = lang === "en";
+  if (signals.some((signal) => signal.kind === "ack_then_clarify")) {
+    return en
+      ? `For ${issueId}, what was understood at first, and what information caused the later clarification?`
+      : `${issueId}で最初に「わかりました」と認識した内容と、その後に再確認が必要になった情報は何でしたか？`;
+  }
   if (signals.some((signal) => signal.kind === "cross_channel" || signal.kind === "contradiction")) {
     return en
       ? `During ${issueId}, was there a point when the expected output or priority changed?`
@@ -343,6 +350,21 @@ export async function POST(request: Request) {
             ? `${offRecordEntries.length} message(s) refer to another conversation, but the referenced decision is not visible in the available logs.`
             : `${offRecordEntries.length}件の参照表現がありますが、参照先の決定内容が利用可能なログ内で確認できません。`,
           evidence: offRecordEntries,
+        });
+      }
+
+      const acknowledgement = issue.entries.find((entry) => ACK_PATTERN.test(entry.text));
+      const laterClarification = acknowledgement
+        ? issue.entries.find((entry) => entry.id !== acknowledgement.id && entry.authorRole === acknowledgement.authorRole && CLARIFICATION_PATTERN.test(entry.text))
+        : undefined;
+      if (acknowledgement && laterClarification) {
+        signals.push({
+          kind: "ack_then_clarify",
+          label: en ? "Acknowledgement followed by clarification" : "了解後に同一案件で再確認",
+          summary: en
+            ? "The same role acknowledged the instruction and later asked for clarification. The keyword is treated only as context, not proof of understanding."
+            : "同じ担当ロールが一度了解を示した後に再確認しています。「わかりました」という単語だけで理解済みとは判断しません。",
+          evidence: [acknowledgement, laterClarification],
         });
       }
 
