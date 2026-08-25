@@ -1,4 +1,4 @@
-# PENCIL Bridge Demo Script
+# PENCIL Bridge V2 Demo Script
 
 ## Before the meeting
 
@@ -18,15 +18,16 @@ Japanese:
 
 「情報は伝達されていますが、判断内容が共通理解として残らない場合があります。PENCIL Bridgeは、社員を評価したり新しい入力作業を増やしたりせず、既存記録から認識のズレ候補を見つけます。」
 
-### 2. Working pipeline — 90 seconds
+### 2. V2 working pipeline — 90 seconds
 
 Open Data & Detection / データ登録・検知.
 
-1. Select Load 10 fictional cases / 架空の10案件を読み込む.
-2. Point out that 10 cases and 40 messages are stored in the browser-local database.
-3. Select Run detection pipeline / 検知パイプラインを実行.
-4. Show the detected contradiction, undocumented verbal decision, rework count, and original evidence.
-5. Explain that optional local Ollama analysis can supplement the deterministic checks.
+1. Show the simulated Chatwork, Backlog, meeting-transcript, and Box connections.
+2. Show the six defined analyzer signals and explain that a keyword alone never creates an HR finding.
+3. Select Load 10 fictional cases / 架空の10案件を読み込む.
+4. Point out that 10 cases and 40 messages are gathered into the browser-local demo workspace.
+5. Select Run detection pipeline / 検知パイプラインを実行 and show the simulated 30-minute batch status.
+6. Show the detected contradiction, acknowledgement-followed-by-clarification signal, undocumented verbal decision, rework count, and original evidence.
 
 Say clearly:
 
@@ -40,6 +41,10 @@ Open Review queue / 確認キュー.
 2. Show the decision history across the meeting, Backlog, and Chatwork.
 3. Show Mark false positive, Add to follow-up, and Mark reviewed.
 4. Explain that AI produces review candidates, while HR makes the decision.
+5. Switch between Private HR analysis and Staff clarification draft. Approve the staff draft to demonstrate the separate formats.
+6. Add a case to the weekly HR report.
+
+Return to Overview and select Send weekly report to HR. Explain that this is a notification simulation for the demo, not a live external message.
 
 ### 4. Pilot and connection design — 60 seconds
 
