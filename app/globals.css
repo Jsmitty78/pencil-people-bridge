@@ -28,6 +28,9 @@ button { font:inherit; }
 .topbar h1 { margin:10px 0 0; font-size:24px; line-height:1.35; letter-spacing:-.045em; }
 .topActions { display:flex; gap:9px; flex-shrink:0; }
 .topActions button { min-height:42px; padding:0 15px; cursor:pointer; font-size:10px; font-weight:800; }
+.languageToggle { display:flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--line); background:#f1f2ef; }
+.languageToggle button { min-height:34px; padding:0 10px; border:0; background:transparent; color:var(--muted); }
+.languageToggle button.active { background:#fff; color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.1); }
 .ghostButton { border:1px solid var(--line); background:#fff; color:var(--ink); }
 .runButton { min-width:148px; border:1px solid var(--ink); background:var(--ink); color:#fff; }
 .runButton:hover { background:var(--red); border-color:var(--red); }
@@ -192,7 +195,7 @@ button { font:inherit; }
   .appShell{display:block} .sidebar{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;width:100%;height:auto;padding:12px 16px}
   .brand{padding:0;border:0}.mainNav{flex-direction:row;justify-content:center;margin:0}.mainNav button{grid-template-columns:1fr;min-height:38px;padding:0 11px;text-align:center}
   .mainNav button span,.mainNav button b{display:none}.sidebarFoot{margin:0;padding:0;border:0}.sidebarFoot div{display:none}
-  .topbar{align-items:flex-start;flex-direction:column;min-height:auto;padding-top:20px;padding-bottom:20px}.topActions{width:100%}.topActions button{flex:1}
+  .topbar{align-items:flex-start;flex-direction:column;min-height:auto;padding-top:20px;padding-bottom:20px}.topActions{width:100%;flex-wrap:wrap}.topActions>button{flex:1}.languageToggle{flex:0 0 auto}.languageToggle button{flex:0 0 auto}
   .content{padding:20px 15px 38px}.notice{align-items:flex-start;flex-direction:column;gap:8px}.notice p{text-align:left}
   .overviewGrid{grid-template-columns:1fr}.workflowStrip{grid-template-columns:1fr;gap:11px}.workflowStrip>i{transform:rotate(90deg)}
   .architectureIntro{grid-template-columns:1fr;gap:20px}.architectureIntro>p{max-width:600px}.dataFlow{grid-template-columns:1fr;gap:9px}.dataFlow>i{transform:rotate(90deg)}
