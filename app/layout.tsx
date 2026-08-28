@@ -2,7 +2,11 @@ import "./globals.css";
 
 export const metadata = {
   title: "PENCIL Bridge V2 | HR Review Console",
-  description: "Engineer-feedback build of the issue-level HR communication review prototype",
+  description: "A privacy-safe concept demo for issue-level HR communication review using fictional data.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

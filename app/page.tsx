@@ -289,7 +289,7 @@ const EN: Record<string, string> = {
   "実データから問題検知までを動かす。": "Run the complete data-to-detection pipeline.",
   "CSV出力": "Export CSV",
   "照合中...": "Analyzing...",
-  "架空データで再実行": "Run fictional demo",
+  "デモをリセットして実行": "Reset & run demo",
   "この画面の案件・メッセージ・数値はすべて架空です。": "Every issue, message, and number on this screen is fictional.",
   "AIは確認候補と根拠を整理するだけです。人や感情を評価せず、最終判断はHRが行います。": "AI only organizes review candidates and evidence. It does not evaluate people or emotions, and HR makes every final decision.",
   "要確認": "Needs review",
@@ -472,7 +472,14 @@ export default function Home() {
   }
   function runDemo() {
     setRunning(true);
+    setActionFeedback(null);
     window.setTimeout(() => {
+      setCases(INITIAL_CASES);
+      setSelectedId("BLG-1234");
+      setFilter("all");
+      setDetailMode("hr");
+      setReportCaseIds(["BLG-1234", "BLG-1189", "INT-2041"]);
+      setStaffDraftApproved({});
       setRunning(false);
       setLastRun(new Intl.DateTimeFormat(lang === "en" ? "en-US" : "ja-JP", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date()));
       setWeeklyReportSent(false);
@@ -517,9 +524,17 @@ export default function Home() {
               <button className={lang === "en" ? "active" : ""} onClick={() => setLang("en")}>EN</button>
             </div>
             <button className="ghostButton" onClick={exportCsv}>{t("CSV出力")}</button>
-            <button className="runButton" onClick={runDemo} disabled={running}>{running ? <><i />{t("照合中...")}</> : t("架空データで再実行")}</button>
+            <button className="runButton" onClick={runDemo} disabled={running}>{running ? <><i />{t("照合中...")}</> : t("デモをリセットして実行")}</button>
           </div>
         </header>
+
+        <p className="srOnly" role="status" aria-live="polite">
+          {actionFeedback?.kind === "follow-up"
+            ? (lang === "en" ? "Added to follow-up." : "面談候補に追加しました。")
+            : actionFeedback?.kind === "reviewed"
+              ? (lang === "en" ? "Marked reviewed." : "確認済みにしました。")
+              : ""}
+        </p>
 
         {view === "pipeline" && <PipelineLab lang={lang} />}
         {view === "overview" && <div className="content overviewView">

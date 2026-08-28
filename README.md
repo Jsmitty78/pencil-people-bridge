@@ -30,6 +30,7 @@ V2 incorporates the Aug 25 engineer feedback and includes:
 - an interactive weekly HR report and notification state
 - separate private HR analysis and HR-approved staff clarification formats
 - transcript-confidence labels for meeting evidence
+- a one-click demo reset so every tester can start from the same state
 
 Presentation guide: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
 
