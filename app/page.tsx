@@ -436,8 +436,14 @@ export default function Home() {
   const [reportCaseIds, setReportCaseIds] = useState<string[]>(["BLG-1234", "BLG-1189", "INT-2041"]);
   const [weeklyReportSent, setWeeklyReportSent] = useState(false);
   const [staffDraftApproved, setStaffDraftApproved] = useState<Record<string, boolean>>({});
+  const [actionFeedback, setActionFeedback] = useState<{ id: string; kind: "follow-up" | "reviewed" } | null>(null);
   const t = (text: string) => lang === "en" ? EN[text] || text : text;
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+  useEffect(() => {
+    if (!actionFeedback) return;
+    const timer = window.setTimeout(() => setActionFeedback(null), 1400);
+    return () => window.clearTimeout(timer);
+  }, [actionFeedback]);
   const selected = cases.find((item) => item.id === selectedId) || cases[0];
   const reviewCount = cases.filter((item) => item.status === "未確認" || item.status === "面談候補").length;
   const filteredCases = useMemo(() => cases.filter((item) => {
@@ -448,6 +454,10 @@ export default function Home() {
 
   function updateStatus(id: string, status: Status) {
     setCases((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+  }
+  function confirmStatusAction(id: string, status: "面談候補" | "確認済み") {
+    updateStatus(id, status);
+    setActionFeedback({ id, kind: status === "面談候補" ? "follow-up" : "reviewed" });
   }
   function toggleReportCase(id: string) {
     setWeeklyReportSent(false);
@@ -550,7 +560,24 @@ export default function Home() {
                 <section className="findingBox"><span>{t("検知理由")}</span><strong>{t(selected.signal)}</strong><p>{t(selected.summary)}</p><div className="reworkScale"><div><span>{t("手戻り")} <b>{selected.rework}{lang === "ja" ? "回" : ""}</b></span><small>{t("部署平均")} {selected.average.toFixed(1)}{lang === "ja" ? "回" : ""}</small></div><div className="track"><i style={{ width: Math.min(100, selected.rework / 6 * 100) + "%" }} /><b style={{ left: selected.average / 6 * 100 + "%" }} /></div></div></section>
                 <section className="evidenceSection"><div className="sectionTitle"><div><span className="eyebrow">SOURCE TRACE</span><h3>{t("判断履歴と根拠")}</h3></div><small>{t("赤線 = 検知に使った記録")}</small></div><div className="timeline">{selected.evidence.map((entry, index) => <div className={entry.flagged ? "flagged" : ""} key={selected.id + "-" + index}><span className="timelineLine" /><SourceBadge source={entry.source} lang={lang} /><small>{t(entry.date)} ・ {t(entry.role)}{entry.source === "会議記録" && <em>{t("自動文字起こし")} · {t("文字起こし信頼度")} 82%</em>}</small><p>{t(entry.text)}</p></div>)}</div></section>
                 <section className="questionBox"><div><span>HR</span><small>{t("確認時の質問案")}</small></div><p>{lang === "ja" ? "「" : "“"}{t(selected.question)}{lang === "ja" ? "」" : "”"}</p></section>
-                <footer className="detailActions"><button className="textButton" onClick={() => updateStatus(selected.id, "誤検知")}>{t("誤検知として記録")}</button><div><button className={reportCaseIds.includes(selected.id) ? "reportButton selected" : "reportButton"} onClick={() => toggleReportCase(selected.id)}>{reportCaseIds.includes(selected.id) ? t("レポートから外す") : t("レポートに含める")}</button><button className="outlineButton" onClick={() => updateStatus(selected.id, "面談候補")}>{t("面談候補に追加")}</button><button className="confirmButton" onClick={() => updateStatus(selected.id, "確認済み")}>{t("確認済みにする")}</button></div></footer>
+                <footer className="detailActions">
+                  <button className="textButton" onClick={() => updateStatus(selected.id, "誤検知")}>{t("誤検知として記録")}</button>
+                  <div>
+                    <button className={reportCaseIds.includes(selected.id) ? "reportButton selected" : "reportButton"} onClick={() => toggleReportCase(selected.id)}>{reportCaseIds.includes(selected.id) ? t("レポートから外す") : t("レポートに含める")}</button>
+                    <button
+                      className={"outlineButton" + (actionFeedback?.id === selected.id && actionFeedback.kind === "follow-up" ? " actionFeedback" : "")}
+                      onClick={() => confirmStatusAction(selected.id, "面談候補")}
+                    >
+                      {selected.status === "面談候補" ? (lang === "en" ? "✓ Added to follow-up" : "✓ 面談候補に追加済み") : t("面談候補に追加")}
+                    </button>
+                    <button
+                      className={"confirmButton" + (actionFeedback?.id === selected.id && actionFeedback.kind === "reviewed" ? " actionFeedback" : "")}
+                      onClick={() => confirmStatusAction(selected.id, "確認済み")}
+                    >
+                      {selected.status === "確認済み" ? `✓ ${t("確認済み")}` : t("確認済みにする")}
+                    </button>
+                  </div>
+                </footer>
               </> : <>
                 <section className="staffDraftPanel"><header><div><span className="eyebrow">STAFF CLARIFICATION</span><h3>{t("スタッフ向け確認文")}</h3></div><span className={staffDraftApproved[selected.id] ? "approved" : "locked"}>{staffDraftApproved[selected.id] ? t("共有承認済み") : t("HR承認後のみ共有")}</span></header><div className="staffDraftBody"><p>{t("この案件について、異なる指示が記録されています。作業を続ける前に、次の点を確認してください。")}</p><blockquote>{t(selected.question)}</blockquote><small>{t("これは状況確認のためのメッセージであり、個人の評価ではありません。")}</small></div><footer>{t("スタッフに見せる内容には、HRの内部分析・信頼度・人物評価を含めません。")}</footer></section>
                 <footer className="staffDraftActions"><span>{t("HR承認後のみ共有")}</span><button onClick={() => approveStaffDraft(selected.id)} disabled={Boolean(staffDraftApproved[selected.id])}>{staffDraftApproved[selected.id] ? t("共有承認済み") : t("共有をHRが承認")}</button></footer>
