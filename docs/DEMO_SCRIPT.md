@@ -2,8 +2,8 @@
 
 ## Before the meeting
 
-1. Pull the latest bridge-system-v1 branch.
-2. Run npm install and npm run dev.
+1. Pull the latest `main` branch.
+2. Run `npm ci` and `npm run dev`.
 3. Open http://localhost:3000.
 4. Keep the interface in Japanese for PENCIL staff. Use the EN button when English explanation is helpful.
 5. Do not enter confidential or identifiable staff data without explicit company approval.

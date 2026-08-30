@@ -2,9 +2,16 @@ name: PENCIL Bridge CI
 
 on:
   push:
-    branches: [prototype-v1, bridge-system-v1]
+    branches: [main, prototype-v1, bridge-system-v1, "release/**"]
   pull_request:
     branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pencil-bridge-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
