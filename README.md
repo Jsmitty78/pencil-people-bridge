@@ -1,8 +1,10 @@
 # PENCIL Bridge
 
-> From translation to shared understanding.
+> A bilingual workspace for reviewing unclear instructions, source records, and follow-up questions.
 
-[![Status: completed prototype](https://img.shields.io/badge/status-completed%20prototype-9f1d2b)](https://pencil-bridge-test.lovable.app)
+**[Try the live demo](https://pencil-people-bridge.vercel.app)** · [Product case study and my contribution](https://github.com/Jsmitty78/Jsmitty78/blob/main/projects/bridge.md) · [Team and internship record](docs/PROJECT_ARCHIVE.md)
+
+[![Status: completed prototype](https://img.shields.io/badge/status-completed%20prototype-9f1d2b)](https://pencil-people-bridge.vercel.app)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6)](https://www.typescriptlang.org/)
 [![CI](https://github.com/Jsmitty78/pencil-people-bridge/actions/workflows/prototype-ci.yml/badge.svg)](https://github.com/Jsmitty78/pencil-people-bridge/actions/workflows/prototype-ci.yml)
@@ -13,7 +15,7 @@ This was developed during the **PENCIL Co., Ltd. internship** in the **Kyushu Un
 
 | | |
 | --- | --- |
-| **Live demo** | [pencil-bridge-test.lovable.app](https://pencil-bridge-test.lovable.app) |
+| **Live demo** | [pencil-people-bridge.vercel.app](https://pencil-people-bridge.vercel.app) |
 | **Demo data** | Fictional and anonymized scenarios only |
 | **Languages** | Japanese and English |
 | **Project status** | Completed internship prototype, August 2026 |
@@ -57,13 +59,14 @@ The prototype demonstrates **Detect + part of Understand**. Live company connect
 
 ## Quick demo
 
-1. Open the [live demo](https://pencil-bridge-test.lovable.app).
-2. Select **Data & Detection / データ登録・検知**.
-3. Load the ten fictional cases.
-4. Run the detection pipeline.
-5. Open **Review Queue / 確認キュー** and inspect the evidence timeline.
-6. Mark a case reviewed, add it to follow-up, or label it a false positive.
-7. Add selected cases to the weekly HR report.
+1. Open the [live demo](https://pencil-people-bridge.vercel.app) and choose English or Japanese.
+2. Open **Review Queue / 確認キュー** and select an example issue.
+3. Compare the original meeting decision with the later instruction.
+4. Read the follow-up question; mark the case reviewed, add it to follow-up, or dismiss it.
+5. Try CSV export or the simulated weekly report.
+6. Separately, open **Data & detection**, load the fictional cases, and run the detection pipeline.
+
+The detection lab and the seeded review queue are separate demo flows. New detection results do not automatically populate the review queue. Review states reset on reload; the detection lab stores its sample cases in browser-local IndexedDB.
 
 The interface labels simulated connectors and notification states. No live message is sent from the demo.
 
