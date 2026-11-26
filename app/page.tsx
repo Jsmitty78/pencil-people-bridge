@@ -289,7 +289,7 @@ const EN: Record<string, string> = {
   "実データから問題検知までを動かす。": "Run the complete data-to-detection pipeline.",
   "CSV出力": "Export CSV",
   "照合中...": "Analyzing...",
-  "デモをリセットして実行": "Reset & run demo",
+  "デモをリセットして実行": "Reset examples",
   "この画面の案件・メッセージ・数値はすべて架空です。": "Every issue, message, and number on this screen is fictional.",
   "AIは確認候補と根拠を整理するだけです。人や感情を評価せず、最終判断はHRが行います。": "AI only organizes review candidates and evidence. It does not evaluate people or emotions, and HR makes every final decision.",
   "要確認": "Needs review",
@@ -319,8 +319,8 @@ const EN: Record<string, string> = {
   "優先案件と確認質問をHRにまとめて送ります": "Packages priority cases and review questions for HR",
   "レポートに含める": "Add to report",
   "レポートから外す": "Remove from report",
-  "HRへ週次レポートを送信": "Send weekly report to HR",
-  "HRへ送信済み": "Sent to HR",
+  "HRへ週次レポートを送信": "Preview report delivery",
+  "HRへ送信済み": "Delivery preview complete",
   "通知待ち": "Awaiting notification",
   "件の案件を含む": "cases included",
   "自動収集": "Automatic collection",
@@ -425,7 +425,7 @@ function SourceBadge({ source, lang }: { source: Source; lang: Lang }) {
 }
 
 export default function Home() {
-  const [lang, setLang] = useState<Lang>("ja");
+  const [lang, setLang] = useState<Lang>("en");
   const [view, setView] = useState<View>("overview");
   const [cases, setCases] = useState(INITIAL_CASES);
   const [selectedId, setSelectedId] = useState("BLG-1234");
@@ -505,19 +505,19 @@ export default function Home() {
   return (
     <main className="appShell">
       <aside className="sidebar">
-        <div className="brand"><span className="brandMark">P</span><div><strong>PENCIL <em>V2</em></strong><small>PEOPLE BRIDGE</small></div></div>
+        <div className="brand"><span className="brandMark">P</span><div><strong>PENCIL Bridge</strong><small>{lang === "en" ? "HR workspace" : "HRワークスペース"}</small></div></div>
         <nav className="mainNav" aria-label={lang === "en" ? "Main navigation" : "メインナビゲーション"}>
-          <button className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}><span>01</span>{t("概要")}</button>
-          <button className={view === "pipeline" ? "active" : ""} onClick={() => setView("pipeline")}><span>02</span>{t("データ登録・検知")}</button>
-          <button className={view === "review" ? "active" : ""} onClick={() => setView("review")}><span>03</span>{t("確認キュー")}<b>{reviewCount}</b></button>
-          <button className={view === "architecture" ? "active" : ""} onClick={() => setView("architecture")}><span>04</span>{t("接続設計")}</button>
+          <button className={view === "overview" ? "active" : ""} onClick={() => setView("overview")}>{t("概要")}</button>
+          <button className={view === "pipeline" ? "active" : ""} onClick={() => setView("pipeline")}>{t("データ登録・検知")}</button>
+          <button className={view === "review" ? "active" : ""} onClick={() => setView("review")}>{t("確認キュー")}<b>{reviewCount}</b></button>
+          <button className={view === "architecture" ? "active" : ""} onClick={() => setView("architecture")}>{t("接続設計")}</button>
         </nav>
-        <div className="sidebarFoot"><span className="demoDot" /><div><strong>V2 · ENGINEER FEEDBACK</strong><small>{t("自動連携を模した架空データです")}</small></div></div>
+        <div className="sidebarFoot"><span className="demoDot" /><div><strong>Demo workspace</strong><small>{t("自動連携を模した架空データです")}</small></div></div>
       </aside>
 
       <section className="workspace">
         <header className="topbar">
-          <div><span className="eyebrow">PENCIL BRIDGE V2 · HR REVIEW CONSOLE</span><h1>{view === "overview" ? t("共有理解のズレを、案件単位で見つける。") : view === "pipeline" ? t("実データから問題検知までを動かす。") : view === "review" ? t("今週の確認キュー") : t("読み取り専用パイロット設計")}</h1></div>
+          <div><span className="eyebrow">PENCIL Bridge</span><h1>{view === "overview" ? t("概要") : view === "pipeline" ? t("データ登録・検知") : view === "review" ? t("今週の確認キュー") : t("読み取り専用パイロット設計")}</h1></div>
           <div className="topActions">
             <div className="languageToggle" aria-label="Language">
               <button className={lang === "ja" ? "active" : ""} onClick={() => setLang("ja")}>日本語</button>
@@ -539,41 +539,32 @@ export default function Home() {
         {view === "pipeline" && <PipelineLab lang={lang} />}
         {view === "overview" && <div className="content overviewView">
           <section className="notice"><div><span>DEMO DATA</span><strong>{t("この画面の案件・メッセージ・数値はすべて架空です。")}</strong></div><p>{t("AIは確認候補と根拠を整理するだけです。人や感情を評価せず、最終判断はHRが行います。")}</p></section>
-          <section className="metricGrid">
-            <article className="metricCard critical"><div><span>{t("要確認")}</span><small>{t("前週比 +1")}</small></div><strong>{reviewCount}</strong><p>{t("HRの判断を待っている案件")}</p></article>
-            <article className="metricCard"><div><span>{t("対象課題")}</span><small>WEEK 35</small></div><strong>10</strong><p>{t("限定部署の課題を照合")}</p></article>
-            <article className="metricCard"><div><span>{t("通常範囲")}</span><small>{t("自動で非表示")}</small></div><strong>1</strong><p>{t("不一致が見つからなかった案件")}</p></article>
-            <article className="metricCard"><div><span>{t("追加入力")}</span><small>{t("スタッフ負担")}</small></div><strong>0</strong><p>{t("既存記録のみを読み取り")}</p></article>
-          </section>
+          <section className="workSummary"><div><h2>{lang === "en" ? "Ready for review" : "確認待ちの案件"}</h2><p>{lang === "en" ? `${reviewCount} issues need a decision or follow-up. Start with the original records.` : `${reviewCount}件の確認・フォローアップが必要です。元の記録から確認してください。`}</p></div><button className="primaryAction" onClick={() => {setFilter("open");setView("review");}}>{lang === "en" ? "Open review queue" : "確認キューを開く"}</button></section>
           <section className="overviewGrid">
             <article className="panel signalPanel">
-              <header className="panelHeader"><div><span className="eyebrow">WEEKLY SIGNAL</span><h2>{t("今週、先に見るべき2件")}</h2></div><button onClick={() => setView("review")}>{t("すべて確認 →")}</button></header>
-              <div className="signalRows">{cases.filter((item) => item.severity !== "normal").slice(0, 2).map((item) => <button key={item.id} onClick={() => { setSelectedId(item.id); setView("review"); }}><span className={"severityBar " + item.severity} /><div className="signalMain"><small>{item.id} ・ {t(item.owner)}</small><strong>{t(item.title)}</strong><p>{t(item.signal)}</p></div><div className="signalStat"><strong>{item.rework}</strong><small>{t("手戻り")}</small></div><span className="rowArrow">→</span></button>)}</div>
+              <header className="panelHeader"><div><h2>{(lang === "en" ? "Needs your attention" : "確認待ち")}</h2></div><button onClick={() => setView("review")}>{t("すべて確認 →")}</button></header>
+              <div className="signalRows">{cases.filter((item) => item.status === "未確認" || item.status === "面談候補").slice(0, 4).map((item) => <button key={item.id} onClick={() => { setSelectedId(item.id); setView("review"); }}><span className={"severityBar " + item.severity} /><div className="signalMain"><small>{item.id} ・ {t(item.owner)}</small><strong>{t(item.title)}</strong><p>{t(item.signal)}</p></div><div className="signalStat"><strong>{item.rework}</strong><small>{t("手戻り")}</small></div><span className="rowArrow">→</span></button>)}</div>
             </article>
-            <article className="panel sourcePanel">
-              <header className="panelHeader"><div><span className="eyebrow">READ-ONLY INPUT</span><h2>{t("照合した記録")}</h2></div><span className="syncState"><i />{t("正常")}</span></header>
-              <div className="sourceRows"><div><SourceBadge source="Backlog" lang={lang} /><strong>10</strong><small>{t("課題")}</small></div><div><SourceBadge source="Chatwork" lang={lang} /><strong>15</strong><small>{t("メッセージ")}</small></div><div><SourceBadge source="会議記録" lang={lang} /><strong>9</strong><small>{t("決定事項")}</small></div><div><SourceBadge source="Box" lang={lang} /><strong>40</strong><small>{t("ファイル")}</small></div></div>
-              <footer><span>{t("最終実行")}</span><strong>{t(lastRun)}</strong></footer>
-            </article>
+            <aside className="reviewGuide"><h2>{lang === "en" ? "Start with context" : "背景を確認する"}</h2><ol><li><strong>{lang === "en" ? "Read what was agreed" : "合意した内容を読む"}</strong><p>{lang === "en" ? "Compare the meeting record with the later instruction." : "会議記録と、その後の指示を比較します。"}</p></li><li><strong>{lang === "en" ? "Ask what changed" : "変更理由を確認する"}</strong><p>{lang === "en" ? "A difference may have a valid reason. Use the suggested question to follow up." : "変更には理由がある場合もあります。質問案を使って確認します。"}</p></li><li><strong>{lang === "en" ? "Choose the next step" : "次の対応を選ぶ"}</strong><p>{lang === "en" ? "Follow up, mark reviewed, or dismiss a false positive." : "フォローアップ、確認済み、誤検知から選びます。"}</p></li></ol><p>{lang === "en" ? "Review work issues, not people. Decisions stay with HR." : "個人ではなく案件を確認します。判断はHRが行います。"}</p></aside>
           </section>
           <section className="weeklyReportPanel">
-            <div className="weeklyReportLead"><span className="eyebrow">V2 · HR DELIVERY</span><h2>{t("週次HRレポート")}</h2><p>{t("優先案件と確認質問をHRにまとめて送ります")}</p></div>
+            <div className="weeklyReportLead"><h2>{t("週次HRレポート")}</h2><p>{t("優先案件と確認質問をHRにまとめて送ります")}</p></div>
             <div className="weeklyReportCases">{reportCaseIds.slice(0, 3).map((id) => { const item = cases.find((entry) => entry.id === id); return item ? <span key={id}><b>{id}</b>{t(item.title)}</span> : null; })}</div>
             <div className="weeklyReportAction"><small className={weeklyReportSent ? "sent" : ""}><i />{weeklyReportSent ? t("HRへ送信済み") : t("通知待ち")}</small><strong>{reportCaseIds.length} {t("件の案件を含む")}</strong><button onClick={sendWeeklyReport} disabled={!reportCaseIds.length || weeklyReportSent}>{weeklyReportSent ? t("HRへ送信済み") : t("HRへ週次レポートを送信")}</button></div>
           </section>
-          <section className="workflowStrip"><div><span>1</span><p><strong>{t("自動収集")}</strong><small>{t("Chatwork・Backlog・会議記録を読み取り")}</small></p></div><i>→</i><div><span>2</span><p><strong>{t("Boxワークスペース")}</strong><small>{t("同じ場所にトランスクリプトと参照IDを集約")}</small></p></div><i>→</i><div><span>3</span><p><strong>{t("30分バッチ分析")}</strong><small>{t("定義済みシグナルで案件単位に検知")}</small></p></div><i>→</i><div><span>4</span><p><strong>{t("HRへ通知")}</strong><small>{t("優先案件を週次レポートまたは通知で共有")}</small></p></div></section>
+
         </div>}
 
         {view === "review" && <div className="content reviewView">
           <section className="queueToolbar"><div className="segmented"><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>{t("すべて")} <b>{cases.length}</b></button><button className={filter === "open" ? "active" : ""} onClick={() => setFilter("open")}>{t("未完了")} <b>{reviewCount}</b></button><button className={filter === "done" ? "active" : ""} onClick={() => setFilter("done")}>{t("対応済み")}</button></div><p><span />{t("案件単位のみ表示・個人評価なし")}</p></section>
           <section className="reviewLayout">
-            <div className="caseQueue"><div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong>{item.foreignStaff && <em className="caseForeignBadge">{t("外国籍スタッフ関連")}</em>}<span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong><span>{t("信頼度")} {item.confidence}%</span></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
+            <div className="caseQueue"><div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong>{item.foreignStaff && <em className="caseForeignBadge">{t("外国籍スタッフ関連")}</em>}<span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
             <article className="caseDetail">
-              <header className="detailHeader"><div><span className={"statusPill " + statusClass[selected.status]}>{t(selected.status)}</span>{selected.foreignStaff && <span className="caseForeignBadge">{t("外国籍スタッフ関連")}</span>}<small>{selected.id} ・ {t(selected.owner)}</small><h2>{t(selected.title)}</h2></div><div className="confidence"><span>{t("検知信頼度")}</span><strong>{selected.confidence}<small>%</small></strong></div></header>
+              <header className="detailHeader"><div><span className={"statusPill " + statusClass[selected.status]}>{t(selected.status)}</span>{selected.foreignStaff && <span className="caseForeignBadge">{t("外国籍スタッフ関連")}</span>}<small>{selected.id} ・ {t(selected.owner)}</small><h2>{t(selected.title)}</h2></div><span className="recordCount">{selected.evidence.length} {lang === "en" ? "source records" : "件の記録"}</span></header>
               <section className="outputModeBar"><div><span className="eyebrow">{t("出力フォーマット")}</span><strong>{detailMode === "hr" ? t("HR限定") : t("HR承認後のみ共有")}</strong></div><div className="segmented"><button className={detailMode === "hr" ? "active" : ""} onClick={() => setDetailMode("hr")}>{t("HR専用分析")}</button><button className={detailMode === "staff" ? "active" : ""} onClick={() => setDetailMode("staff")}>{t("スタッフ向け確認文")}</button></div></section>
               {detailMode === "hr" ? <>
                 <section className="findingBox"><span>{t("検知理由")}</span><strong>{t(selected.signal)}</strong><p>{t(selected.summary)}</p><div className="reworkScale"><div><span>{t("手戻り")} <b>{selected.rework}{lang === "ja" ? "回" : ""}</b></span><small>{t("部署平均")} {selected.average.toFixed(1)}{lang === "ja" ? "回" : ""}</small></div><div className="track"><i style={{ width: Math.min(100, selected.rework / 6 * 100) + "%" }} /><b style={{ left: selected.average / 6 * 100 + "%" }} /></div></div></section>
-                <section className="evidenceSection"><div className="sectionTitle"><div><span className="eyebrow">SOURCE TRACE</span><h3>{t("判断履歴と根拠")}</h3></div><small>{t("赤線 = 検知に使った記録")}</small></div><div className="timeline">{selected.evidence.map((entry, index) => <div className={entry.flagged ? "flagged" : ""} key={selected.id + "-" + index}><span className="timelineLine" /><SourceBadge source={entry.source} lang={lang} /><small>{t(entry.date)} ・ {t(entry.role)}{entry.source === "会議記録" && <em>{t("自動文字起こし")} · {t("文字起こし信頼度")} 82%</em>}</small><p>{t(entry.text)}</p></div>)}</div></section>
+                <section className="evidenceSection"><div className="sectionTitle"><div><h3>{t("判断履歴と根拠")}</h3></div><small>{t("赤線 = 検知に使った記録")}</small></div><div className="timeline">{selected.evidence.map((entry, index) => <div className={entry.flagged ? "flagged" : ""} key={selected.id + "-" + index}><span className="timelineLine" /><SourceBadge source={entry.source} lang={lang} /><small>{t(entry.date)} ・ {t(entry.role)}{entry.source === "会議記録" && <em>{lang === "en" ? "Sample meeting record" : "サンプル会議記録"}</em>}</small><p>{t(entry.text)}</p></div>)}</div></section>
                 <section className="questionBox"><div><span>HR</span><small>{t("確認時の質問案")}</small></div><p>{lang === "ja" ? "「" : "“"}{t(selected.question)}{lang === "ja" ? "」" : "”"}</p></section>
                 <footer className="detailActions">
                   <button className="textButton" onClick={() => updateStatus(selected.id, "誤検知")}>{t("誤検知として記録")}</button>
