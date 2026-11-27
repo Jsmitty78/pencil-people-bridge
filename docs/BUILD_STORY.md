@@ -2,7 +2,7 @@
 
 **Employee interviews, a bilingual prototype and a final presentation — built with feedback from PENCIL’s HR and engineering teams.**
 
-I spent 10 days working on PENCIL Bridge with **Takeshi Yamamoto** and **Sydney Magnolia Tjandra**, during our placement at **PENCIL Co., Ltd. in Fukuoka** through Kyushu University’s **QREC Venture Life Challenge 2026**. I led the prototype and demo development, alongside product direction and the technical delivery.
+I spent 10 days working on PENCIL Bridge with **Takeshi Yamamoto** and **Sydney Magnolia Tjandra**, during our placement at **PENCIL（株式会社ペンシル） in Fukuoka** through Kyushu University’s **QREC Venture Life Challenge 2026**. I led the prototype and demo development, alongside product direction and the technical delivery.
 
 <img src="media/story/engineering-and-hr-review.jpg" alt="Jake and the team reviewing PENCIL Bridge with the internal engineering division, two HR supervisors and an engineering director" width="900">
 
