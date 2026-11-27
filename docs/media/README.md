@@ -21,3 +21,11 @@ All eight photographs were supplied by Jake for this project story. No people, b
 - [README](../../README.md), [project archive](../PROJECT_ARCHIVE.md), [HR feedback](../hitomi-feedback.md), and [system-design alignment](../system-design-alignment.md) supply the documented product scope and implementation boundaries.
 
 The supplied presentations and interview working files are not added to the public repository. This update adds photographs and narrative documentation; it does not modify application code or existing technical records.
+
+## Original university deliverables
+
+- `deliverables/pencil-bridge-kyushu-pitch-deck.pdf`: unchanged 13-slide PDF supplied locally as `PENCIL_Bridge_Interview_Focused.pptx.pdf`.
+- `deliverables/pencil-bridge-hr-demo.mp4`: original video extracted without re-encoding from slide 6 of `PENCIL_Bridge_Interview_Focused.pptx.pptx`. Duration: 83.727 seconds.
+- `deliverables/pitch-deck-cover.jpg`: cover preview rendered from the PDF.
+
+Jake confirmed real HR supervisor testing and continued company use of an updated internal version on November 27, 2026. This account does not imply that the public MVP contains that later internal implementation or that the deck’s financial estimates are measured outcomes.

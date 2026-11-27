@@ -18,6 +18,12 @@ I led **prototype and demo development, product direction and technical delivery
 
 **[Read the full ten-day story and photo essay →](docs/BUILD_STORY.md)** · [Try the demo](https://pencil-people-bridge.vercel.app) · [Explore the implementation](#architecture)
 
+### Our Kyushu University deliverables
+
+**[View our original pitch deck](docs/media/deliverables/pencil-bridge-kyushu-pitch-deck.pdf)** · **[Watch the 84-second product demo featuring HR supervisor Hitomi-san](docs/media/deliverables/pencil-bridge-hr-demo.mp4)**
+
+We designed the deck for Kyushu University’s QREC Venture Life Challenge and tested our ten-day MVP with a real HR supervisor at PENCIL. We helped the company develop the system, and PENCIL continues to use an updated internal version as of November 2026. This repository preserves our internship MVP; the updated internal system is separate. [Read the delivery story and what happened next](docs/BUILD_STORY.md#our-pitch-deck-and-product-demo).
+
 ### The work behind the demo
 
 I went to Fukuoka to get hands-on experience outside my usual environment in Kansai. Inside PENCIL, we spoke with employees and worked through how information could become scattered between meetings, messages, tasks and verbal conversations. The question became how to help HR reconstruct the context and ask a useful follow-up before a misunderstanding turned into more work.
