@@ -1,3 +1,5 @@
+<p align="right"><strong>English</strong> | <a href="BUILD_STORY.ja.md">日本語</a></p>
+
 # PENCIL Bridge: what we built in 10 days
 
 **Employee interviews, a bilingual prototype and a final presentation — built with feedback from PENCIL’s HR and engineering teams.**
