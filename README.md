@@ -22,7 +22,7 @@ I led **prototype and demo development, product direction and technical delivery
 
 ### Our Kyushu University deliverables
 
-**[View our original pitch deck](docs/media/deliverables/pencil-bridge-kyushu-pitch-deck.pdf)** · **[Watch the 84-second product demo featuring HR supervisor Hitomi-san](docs/media/deliverables/pencil-bridge-hr-demo.mp4)**
+**[View our original pitch deck](docs/media/deliverables/pencil-bridge-kyushu-pitch-deck.pdf)** · **[Watch the 84-second product demo featuring HR supervisor Hitomi-san](https://pencil-people-bridge.vercel.app/watch?lang=en)**
 
 We designed the deck for Kyushu University’s QREC Venture Life Challenge and tested our ten-day MVP with a real HR supervisor at PENCIL. We helped the company develop the system, and PENCIL continues to use an updated internal version as of November 2026. This repository preserves our internship MVP; the updated internal system is separate. [Read the delivery story and what happened next](docs/BUILD_STORY.md#our-pitch-deck-and-product-demo).
 
@@ -229,3 +229,15 @@ Stop and review the pilot before expanding its scope.
 ## Project principle
 
 **AI organizes the problem. Humans handle the relationship.**
+
+
+[Original video file (preserved unchanged)](https://github.com/Jsmitty78/pencil-people-bridge/blob/main/docs/media/deliverables/pencil-bridge-hr-demo.mp4)
+
+
+### Quick start for visitors
+
+Open the [English demo](https://pencil-people-bridge.vercel.app/?lang=en) or [日本語デモ](https://pencil-people-bridge.vercel.app/?lang=ja). No login, API key, or installation is required. Choose **Start with a sample case** to review evidence, or **Explore the detection lab → Analyze sample cases** to run the detector on ten fictional cases without changing saved records. Case search supports IDs, titles, and signals.
+
+The [bilingual video player](https://pencil-people-bridge.vercel.app/watch?lang=en) serves a separate H.264/AAC copy with fast-start metadata, native playback controls, mobile inline playback, and an MP4 download fallback. The original 84-second file and the earlier public demo video are retained unchanged. The recording's original audio and embedded subtitles are unchanged; the player interface is bilingual.
+
+For local use: `npm ci`, `npm run dev`, then open `http://localhost:3000`. For a production check: `npm run build` and `npm start`. The deterministic detection path does not need Ollama. The optional local model setup remains documented in the existing technical instructions.

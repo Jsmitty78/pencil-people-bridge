@@ -248,6 +248,7 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
   const [reworkCount, setReworkCount] = useState("0");
   const [logs, setLogs] = useState("");
   const [report, setReport] = useState<DetectionResponse | null>(null);
+  const [analyzedCount, setAnalyzedCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [batchStatus, setBatchStatus] = useState<"idle" | "collecting" | "ready">("idle");
   const [message, setMessage] = useState("");
@@ -316,11 +317,12 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
     setReport(null);
   }
 
-  async function runAnalysis() {
-    if (!storedCases.length) {
+  async function runAnalysis(inputCases = storedCases) {
+    if (!inputCases.length) {
       setMessage(en ? "Save or load at least one case first." : "先に案件を1件以上保存してください。");
       return;
     }
+    setAnalyzedCount(inputCases.length);
     setBusy(true); setBatchStatus("collecting"); setMessage(""); setReport(null);
     try {
       const response = await fetch("/api/detect", {
@@ -328,7 +330,7 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lang,
-          issues: storedCases.map((item) => ({
+          issues: inputCases.map((item) => ({
             ...item,
             title: lang === "ja" ? item.titleJa || item.title : item.title,
           })),
@@ -386,9 +388,10 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
         </div>
       </section>
 
+      <section className="sampleQuickStart"><div><h2>{en ? "Run a complete sample analysis" : "サンプルデータで検知を実行"}</h2><p>{en ? "Analyze ten fictional cases immediately. Your saved cases stay untouched. No model setup or API key required." : "架空の10案件をそのまま分析。保存済みの案件は変更しません。モデルの設定やAPIキーは不要です。"}</p></div><button className="primaryAction" disabled={busy} onClick={() => runAnalysis(SAMPLE_CASES)}>{busy ? (en ? "Analyzing…" : "分析中…") : (en ? "Analyze sample cases" : "サンプルを分析")}</button></section>
       <section className="pipelineSteps">
         <div className="active"><span>1</span><p><strong>{en ? "Collect sources" : "ソース収集"}</strong><small>{en ? "Read-only demo connections" : "読み取り専用デモ接続"}</small></p></div>
-        <i>→</i><div className={storedCases.length ? "active" : ""}><span>2</span><p><strong>{en ? "Box workspace" : "Boxワークスペース"}</strong><small>{storedCases.length} {en ? "cases gathered" : "案件を集約"}</small></p></div>
+        <i>→</i><div className={(report ? analyzedCount : storedCases.length) ? "active" : ""}><span>2</span><p><strong>{en ? "Box workspace" : "Boxワークスペース"}</strong><small>{report ? analyzedCount : storedCases.length} {en ? "cases gathered" : "案件を集約"}</small></p></div>
         <i>→</i><div className={batchStatus !== "idle" ? "active" : ""}><span>3</span><p><strong>{en ? "30-minute batch" : "30分バッチ"}</strong><small>{batchStatus === "collecting" ? (en ? "Processing…" : "処理中…") : batchStatus === "ready" ? (en ? "Analysis complete" : "分析完了") : (en ? "Ready to simulate" : "デモ実行待ち")}</small></p></div>
         <i>→</i><div className={report ? "active" : ""}><span>4</span><p><strong>{en ? "HR output" : "HR出力"}</strong><small>{en ? "Evidence and notification-ready cases" : "根拠・通知対象を作成"}</small></p></div>
       </section>
@@ -409,14 +412,14 @@ export default function PipelineLab({ lang }: { lang: Lang }) {
           <header className="panelHeader"><div><span className="eyebrow">LOCAL DATABASE</span><h2>{en ? "Registered cases" : "登録済み案件"}</h2></div><strong>{storedCases.length}</strong></header>
           <div className="databaseStats"><div><strong>{storedCases.length}</strong><span>{en ? "Cases" : "案件"}</span></div><div><strong>{messageCount}</strong><span>{en ? "Messages" : "メッセージ"}</span></div><div><strong>0</strong><span>{en ? "Names stored" : "保存した氏名"}</span></div></div>
           <div className="databaseList">{storedCases.length ? storedCases.map((item) => <div key={item.issueId}><span>{item.issueId}</span><p><strong>{en ? item.title : item.titleJa || item.title}{item.scenario === "foreign-staff" && <em>{en ? "Foreign staff" : "外国籍スタッフ"}</em>}</strong><small>{item.entries.length} {en ? "logs" : "ログ"} · {item.statusEvents.filter((event) => event === "returned").length} {en ? "returns" : "差し戻し"}</small></p><button onClick={() => removeCase(item.issueId)}>{en ? "Delete" : "削除"}</button></div>) : <p className="noCases">{en ? "No cases saved yet." : "まだ案件が保存されていません。"}</p>}</div>
-          <button className="analyzeButton" onClick={runAnalysis} disabled={busy || !storedCases.length}>{busy ? (en ? "Analyzing..." : "分析中...") : (en ? "Run detection pipeline" : "検知パイプラインを実行")}</button>
+          <button className="analyzeButton" onClick={() => runAnalysis()} disabled={busy || !storedCases.length}>{busy ? (en ? "Analyzing..." : "分析中...") : (en ? "Run detection pipeline" : "検知パイプラインを実行")}</button>
         </article>
       </section>
 
       {message && <p className="pipelineMessage" role="status">{message}</p>}
 
       {report && <section className="pipelineResults">
-        <header><div><span className="eyebrow">DETECTION OUTPUT</span><h2>{en ? "Problems detected from stored data" : "保存データから問題を検知"}</h2></div><div><span>{report.mode === "local-nli" ? "LOCAL LLM" : "DETERMINISTIC"}</span><strong>{report.results.length} {en ? "flagged" : "件検知"}</strong></div></header>
+        <header><div><span className="eyebrow">DETECTION OUTPUT</span><h2>{en ? "Findings from the analyzed records" : "分析した記録からの検知結果"}</h2></div><div><span>{report.mode === "local-nli" ? "LOCAL LLM" : "DETERMINISTIC"}</span><strong>{report.results.length} {en ? "flagged" : "件検知"}</strong></div></header>
         {report.results.length ? report.results.map((result) => <article className="detectedCase" key={result.issueId}>
           <div className="detectedHeading"><span>{result.issueId}</span><div><h3>{result.title}</h3><p>{result.reworkCount} {en ? "returns" : "回の差し戻し"} · {result.signals.length} {en ? "signals" : "シグナル"}</p></div></div>
           <div className="detectedSignals">{result.signals.map((signal, index) => <div key={signal.kind + index}><span>{String(index + 1).padStart(2, "0")}</span><p><strong>{signal.label}</strong><small>{signal.summary}</small></p></div>)}</div>

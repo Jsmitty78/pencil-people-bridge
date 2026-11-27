@@ -386,3 +386,53 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:850px){.appShell{grid-template-columns:1fr;}.sidebar{position:static;height:auto;padding:16px 20px;border-bottom:1px solid var(--line);border-right:0;}.brand{padding:0 0 14px;}.mainNav{flex-direction:row;flex-wrap:wrap;margin:0;}.mainNav button{min-height:38px;font-size:12px;padding:8px 10px;}.sidebarFoot{display:none;}.overviewGrid{grid-template-columns:1fr;}.reviewGuide{max-width:65ch;}.weeklyReportPanel{grid-template-columns:1fr;}.reviewLayout{grid-template-columns:230px minmax(0,1fr);}}
 @media(max-width:620px){.topbar{padding:20px;}.content{padding:20px 16px;}.workSummary{flex-direction:column;align-items:flex-start;gap:16px;}.notice{display:block;}.notice p{margin-top:8px;}.reviewLayout{grid-template-columns:1fr;}.caseQueue{max-height:300px;overflow:auto;}.detailHeader{padding:20px;flex-wrap:wrap;}.detailHeader h2{font-size:21px;}.findingBox,.questionBox,.staffDraftPanel{margin:20px;}.evidenceSection{padding:0 20px 20px;}.signalRows button{padding:18px;}.signalMain strong{font-size:14px;}.detailActions{padding:20px;}.sectionTitle{flex-wrap:wrap;gap:8px;}.pipelineGrid{grid-template-columns:1fr;}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
+
+/* Recruiter entry points: PENCIL red, quiet surfaces, readable bilingual copy. */
+.demoWelcome { display:grid; grid-template-columns:1.25fr 1fr; gap:40px; padding:32px 0 36px; border-bottom:1px solid var(--line); }
+.welcomeContext { color:#a42d3d; font-size:13px; font-weight:600; margin:0 0 16px; }
+.welcomeCopy h2 { margin:0; max-width:23ch; font-size:clamp(28px,3vw,40px); line-height:1.2; letter-spacing:-.035em; font-weight:650; }
+.welcomeCopy>p:not(.welcomeContext) { max-width:58ch; color:#59636c; font-size:15px; line-height:1.8; margin:20px 0; }
+.welcomeCopy>small { display:block; color:#68717a; font-size:12px; margin-top:18px; }
+.welcomeActions { display:flex; flex-wrap:wrap; align-items:center; gap:16px; }
+.welcomeActions a,.demoResources a,.watchPage a { color:#9f2537; text-underline-offset:4px; }
+.welcomeActions a { font-size:14px; font-weight:600; }
+.welcomeEvidence { align-self:center; padding:24px; background:white; border:1px solid #dce1e5; border-radius:10px; }
+.welcomeEvidence>span { font-size:13px; color:#59636c; }
+.welcomeEvidence blockquote { margin:20px 0 0; padding:0 0 0 16px; border-left:3px solid #a42d3d; font-size:16px; line-height:1.7; }
+.welcomeEvidence b { display:block; font-size:12px; color:#68717a; font-weight:500; }
+.welcomeEvidence>p { padding-top:16px; margin-bottom:0; color:#9f2537; font-size:14px; }
+.demoResources { display:flex; flex-wrap:wrap; align-items:center; gap:24px; padding:20px 0; font-size:13px; }
+.demoResources button { background:none; padding:0; border:0; color:#9f2537; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+.demoResources>span { color:#68717a; margin-left:auto; }
+.caseSearch { display:block; padding:16px; font-size:12px; font-weight:600; }
+.caseSearch input { display:block; width:100%; min-height:42px; margin-top:8px; border:1px solid #c8cfd5; border-radius:5px; background:white; padding:10px; font:inherit; }
+.emptySearch { padding:16px; font-size:13px; line-height:1.7; color:#59636c; }
+.sampleQuickStart { display:flex; justify-content:space-between; align-items:center; gap:24px; margin:24px 0; padding:24px; border:1px solid #dce1e5; border-left:4px solid #a42d3d; background:white; border-radius:6px; }
+.sampleQuickStart h2 { font-size:20px; margin:0 0 8px; }
+.sampleQuickStart p { max-width:65ch; font-size:14px; line-height:1.7; margin:0; color:#59636c; }
+.sampleQuickStart button { flex-shrink:0; }
+.primaryAction:disabled { opacity:.6; cursor:wait; }
+.watchPage { max-width:1120px; margin:auto; padding:0 32px 48px; }
+.watchHeader { min-height:96px; display:flex; align-items:center; justify-content:space-between; gap:24px; border-bottom:1px solid #dce1e5; }
+.watchPage .watchBrand { display:flex; align-items:center; gap:10px; color:#26323c; text-decoration:none; font-size:18px; font-weight:650; }
+.watchBrand span { background:#a42d3d; color:white; padding:7px 12px; border-radius:4px; }
+.watchHeader nav { white-space:nowrap; font-size:14px; }
+.watchHeader [aria-current=page] { font-weight:700; color:#26323c; text-decoration:none; }
+.watchIntro { padding:40px 0 28px; max-width:800px; }
+.watchIntro>p:first-child { color:#9f2537; font-size:14px; font-weight:600; }
+.watchIntro h1 { font-size:clamp(30px,4vw,48px); line-height:1.2; letter-spacing:-.035em; margin:16px 0; }
+.watchIntro>p:last-child { max-width:70ch; font-size:17px; line-height:1.8; color:#59636c; }
+.cinema { position:relative; background:#000; border-radius:10px; overflow:hidden; }
+.cinema video { display:block; width:100%; aspect-ratio:16/9; }
+.playOverlay { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; gap:12px; min-height:56px; padding:16px 24px; border:1px solid #ffffff80; border-radius:8px; background:#fff; color:#26323c; font-size:15px; font-weight:650; cursor:pointer; box-shadow:0 4px 30px #0005; white-space:nowrap; }
+.playOverlay span { color:#a42d3d; }
+.watchCaption { display:flex; justify-content:space-between; align-items:baseline; gap:24px; margin:16px 0 36px; font-size:13px; line-height:1.7; color:#68717a; }
+.watchCaption p { max-width:75ch; margin:0; }
+.watchCaption a { white-space:nowrap; }
+.watchNext { display:flex; justify-content:space-between; align-items:center; gap:28px; padding:28px 0; border-top:1px solid #dce1e5; border-bottom:1px solid #dce1e5; }
+.watchNext h2 { font-size:24px; margin:0 0 10px; }
+.watchNext p { margin:0; max-width:65ch; font-size:15px; color:#59636c; line-height:1.7; }
+.watchPage .primaryAction { display:inline-block; background:#a42d3d; color:white; text-decoration:none; padding:14px 20px; border-radius:6px; white-space:nowrap; }
+.watchLinks { display:flex; flex-wrap:wrap; gap:24px; padding:28px 0 0; font-size:14px; }
+@media(max-width:1000px) { .demoWelcome { grid-template-columns:1fr; gap:24px; }.welcomeCopy h2 { max-width:28ch; }.welcomeEvidence { max-width:640px; } }
+@media(max-width:650px) { .demoWelcome { padding-top:16px; }.welcomeCopy h2 { font-size:30px; }.demoResources { gap:16px; }.demoResources>span { margin:0; }.sampleQuickStart,.watchNext,.watchCaption { align-items:flex-start; flex-direction:column; }.watchPage { padding:0 18px 32px; }.watchHeader { min-height:76px; gap:12px; }.watchPage .watchBrand { font-size:15px; }.watchIntro { padding-top:24px; }.watchIntro>p:last-child { font-size:15px; }.watchLinks { gap:18px; }.playOverlay { font-size:13px; padding:12px 16px; min-height:48px; } }

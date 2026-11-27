@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "PENCIL Bridge V2 | HR Review Console",
-  description: "A privacy-safe concept demo for issue-level HR communication review using fictional data.",
+  title: "PENCIL Bridge | Bilingual HR workspace",
+  description: "Explore the bilingual PENCIL Bridge prototype: compare source records, prepare clarification questions, and watch the original HR demonstration.",
   robots: {
     index: false,
     follow: false,

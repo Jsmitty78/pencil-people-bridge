@@ -429,6 +429,7 @@ export default function Home() {
   const [view, setView] = useState<View>("overview");
   const [cases, setCases] = useState(INITIAL_CASES);
   const [selectedId, setSelectedId] = useState("BLG-1234");
+  const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "open" | "done">("all");
   const [running, setRunning] = useState(false);
   const [lastRun, setLastRun] = useState("8月25日 09:40");
@@ -438,6 +439,11 @@ export default function Home() {
   const [staffDraftApproved, setStaffDraftApproved] = useState<Record<string, boolean>>({});
   const [actionFeedback, setActionFeedback] = useState<{ id: string; kind: "follow-up" | "reviewed" } | null>(null);
   const t = (text: string) => lang === "en" ? EN[text] || text : text;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("lang") === "ja") setLang("ja");
+    if (params.get("start") === "review") setView("review");
+  }, []);
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   useEffect(() => {
     if (!actionFeedback) return;
@@ -447,10 +453,12 @@ export default function Home() {
   const selected = cases.find((item) => item.id === selectedId) || cases[0];
   const reviewCount = cases.filter((item) => item.status === "未確認" || item.status === "面談候補").length;
   const filteredCases = useMemo(() => cases.filter((item) => {
+    const query = search.trim().toLowerCase();
+    if (query && ![item.id, item.title, item.signal, t(item.title), t(item.signal)].join(" ").toLowerCase().includes(query)) return false;
     if (filter === "open") return item.status === "未確認" || item.status === "面談候補";
     if (filter === "done") return item.status === "確認済み" || item.status === "誤検知";
     return true;
-  }), [cases, filter]);
+  }), [cases, filter, search, lang]);
 
   function updateStatus(id: string, status: Status) {
     setCases((current) => current.map((item) => item.id === id ? { ...item, status } : item));
@@ -538,6 +546,16 @@ export default function Home() {
 
         {view === "pipeline" && <PipelineLab lang={lang} />}
         {view === "overview" && <div className="content overviewView">
+          <section className="demoWelcome">
+            <div className="welcomeCopy"><p className="welcomeContext">{lang === "en" ? "PENCIL × Kyushu University QREC" : "株式会社ペンシル × 九州大学QREC"}</p>
+            <h2>{lang === "en" ? "Find the missing context. Make the next conversation count." : "記録をつなぎ、次の対話につなげる。"}</h2>
+            <p>{lang === "en" ? "Explore the bilingual HR prototype we built in ten days. Compare conflicting instructions, follow the evidence and prepare a useful question." : "10日間でつくった日英対応の人事支援プロトタイプ。異なる指示を比較し、根拠を確認して、次に聞くべき質問を準備します。"}</p>
+            <div className="welcomeActions"><button className="primaryAction" onClick={() => { setSelectedId("BLG-1234"); setFilter("all"); setSearch(""); setView("review"); }}>{lang === "en" ? "Start with a sample case" : "サンプル案件から始める"}</button><a href={`/watch?lang=${lang}`}>{lang === "en" ? "Watch the 84-second video" : "84秒のデモ動画を見る"}</a></div>
+            <small>{lang === "en" ? "Ready to use. No sign-up, installation or API key." : "登録・インストール・APIキー不要で試せます。"}</small></div>
+            <div className="welcomeEvidence"><span>{lang === "en" ? "One case. Two different instructions." : "同じ案件に、異なる指示。"}</span><blockquote><b>{lang === "en" ? "Meeting record" : "会議記録"}</b>{lang === "en" ? '“Keep the design simple. Limit it to three elements.”' : '「シンプルさを優先し、要素を3点に絞る。」'}</blockquote><blockquote><b>Chatwork</b>{lang === "en" ? '“Add more selling points. We need more information.”' : '「訴求ポイントを追加して、情報量を増やしたい。」'}</blockquote><p>{lang === "en" ? "What changed—and which direction is final?" : "方針が変わった理由と、最終方針は？"}</p></div>
+          </section>
+          <div className="demoResources"><a href={`https://github.com/Jsmitty78/Jsmitty78/blob/main/projects/bridge${lang === "ja" ? ".ja" : ""}.md`}>{lang === "en" ? "The ten-day story & photos" : "10日間のストーリーと写真"}</a><button onClick={() => setView("pipeline")}>{lang === "en" ? "Explore the detection lab" : "検知ラボを試す"}</button><span>{lang === "en" ? "Fictional data · Human review" : "架空データ・人による確認"}</span></div>
+
           <section className="notice"><div><span>DEMO DATA</span><strong>{t("この画面の案件・メッセージ・数値はすべて架空です。")}</strong></div><p>{t("AIは確認候補と根拠を整理するだけです。人や感情を評価せず、最終判断はHRが行います。")}</p></section>
           <section className="workSummary"><div><h2>{lang === "en" ? "Ready for review" : "確認待ちの案件"}</h2><p>{lang === "en" ? `${reviewCount} issues need a decision or follow-up. Start with the original records.` : `${reviewCount}件の確認・フォローアップが必要です。元の記録から確認してください。`}</p></div><button className="primaryAction" onClick={() => {setFilter("open");setView("review");}}>{lang === "en" ? "Open review queue" : "確認キューを開く"}</button></section>
           <section className="overviewGrid">
@@ -558,7 +576,7 @@ export default function Home() {
         {view === "review" && <div className="content reviewView">
           <section className="queueToolbar"><div className="segmented"><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>{t("すべて")} <b>{cases.length}</b></button><button className={filter === "open" ? "active" : ""} onClick={() => setFilter("open")}>{t("未完了")} <b>{reviewCount}</b></button><button className={filter === "done" ? "active" : ""} onClick={() => setFilter("done")}>{t("対応済み")}</button></div><p><span />{t("案件単位のみ表示・個人評価なし")}</p></section>
           <section className="reviewLayout">
-            <div className="caseQueue"><div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong>{item.foreignStaff && <em className="caseForeignBadge">{t("外国籍スタッフ関連")}</em>}<span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
+            <div className="caseQueue"><label className="caseSearch">{lang === "en" ? "Find a case" : "案件を検索"}<input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={lang === "en" ? "Case ID, title or signal" : "課題ID・案件名・検知内容"} /></label>{!filteredCases.length && <p className="emptySearch">{lang === "en" ? "No matching cases. Try another search or filter." : "該当する案件がありません。検索語や絞り込み条件を変更してください。"}</p>}<div className="queueColumns"><span>{t("案件 / 成果物")}</span><span>{t("シグナル")}</span><span>{t("状態")}</span></div>{filteredCases.map((item) => <button className={(selected.id === item.id ? "selected " : "") + "severity-" + item.severity} key={item.id} onClick={() => setSelectedId(item.id)}><div><small>{item.id}</small><strong>{t(item.title)}</strong>{item.foreignStaff && <em className="caseForeignBadge">{t("外国籍スタッフ関連")}</em>}<span>{t(item.owner)}</span></div><div><strong>{t(item.signal)}</strong></div><span className={"statusPill " + statusClass[item.status]}>{t(item.status)}</span></button>)}</div>
             <article className="caseDetail">
               <header className="detailHeader"><div><span className={"statusPill " + statusClass[selected.status]}>{t(selected.status)}</span>{selected.foreignStaff && <span className="caseForeignBadge">{t("外国籍スタッフ関連")}</span>}<small>{selected.id} ・ {t(selected.owner)}</small><h2>{t(selected.title)}</h2></div><span className="recordCount">{selected.evidence.length} {lang === "en" ? "source records" : "件の記録"}</span></header>
               <section className="outputModeBar"><div><span className="eyebrow">{t("出力フォーマット")}</span><strong>{detailMode === "hr" ? t("HR限定") : t("HR承認後のみ共有")}</strong></div><div className="segmented"><button className={detailMode === "hr" ? "active" : ""} onClick={() => setDetailMode("hr")}>{t("HR専用分析")}</button><button className={detailMode === "staff" ? "active" : ""} onClick={() => setDetailMode("staff")}>{t("スタッフ向け確認文")}</button></div></section>

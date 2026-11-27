@@ -154,7 +154,7 @@ Live workplace connectors, production authentication, access control, approved r
 
 ## Our pitch deck and product demo
 
-**[Look through the pitch deck we designed for Kyushu University](media/deliverables/pencil-bridge-kyushu-pitch-deck.pdf)** · **[Watch our product demo with HR supervisor Hitomi-san](media/deliverables/pencil-bridge-hr-demo.mp4)**
+**[Look through the pitch deck we designed for Kyushu University](media/deliverables/pencil-bridge-kyushu-pitch-deck.pdf)** · **[Watch our product demo with HR supervisor Hitomi-san](https://pencil-people-bridge.vercel.app/watch?lang=en)**
 
 [![Our PENCIL Bridge pitch deck for Kyushu University’s QREC Venture Life Challenge](media/deliverables/pitch-deck-cover.jpg)](media/deliverables/pencil-bridge-kyushu-pitch-deck.pdf)
 
@@ -213,3 +213,6 @@ I went to Fukuoka wanting to challenge myself and build connections from scratch
 *With our teammates and colleagues at PENCIL—a final memory of the people who made this experience so special.*
 
 [Explore the code and full technical details](../README.md) · [Read the original project archive](PROJECT_ARCHIVE.md) · [Photo and story sources](media/README.md)
+
+
+[Original video file (preserved unchanged)](https://github.com/Jsmitty78/pencil-people-bridge/blob/main/docs/media/deliverables/pencil-bridge-hr-demo.mp4)
