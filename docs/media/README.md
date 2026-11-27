@@ -29,3 +29,7 @@ The supplied presentations and interview working files are not added to the publ
 - `deliverables/pitch-deck-cover.jpg`: cover preview rendered from the PDF.
 
 Jake confirmed real HR supervisor testing and continued company use of an updated internal version on November 27, 2026. This account does not imply that the public MVP contains that later internal implementation or that the deck’s financial estimates are measured outcomes.
+
+## Additional Fukuoka and team photographs
+
+Added at Jake’s request on November 27, 2026: IMG_6119.HEIC (family dinner), IMG_6080 2.HEIC (exploring Kyushu), IMG_5871 2.JPG (capsule hotel), IMG_6145 2.PNG (festival with a friend; rotated upright), IMG_8080.jpg (replacement whiteboard photograph), IMG_6007 2.JPG (three-university team). Original local files remain unchanged. The original whiteboard file remains in the repository; the story displays the replacement. Jake supplied the travel, accommodation, volunteering, interview and photo-caption context.

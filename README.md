@@ -30,12 +30,12 @@ I went to Fukuoka to get hands-on experience outside my usual environment in Kan
 
 <table>
 <tr>
-<td width="50%"><img src="docs/media/story/whiteboard-problem-framing.jpg" alt="Jake explaining the communication challenge and project plan at the whiteboard"></td>
-<td width="50%"><img src="docs/media/story/working-session.jpg" alt="Jake and a teammate working through the project with laptops"></td>
+<td width="50%"><img src="docs/media/story/whiteboard-discussion.jpg" alt="Jake explaining the communication challenge and project plan at the whiteboard"></td>
+<td width="50%"><img src="docs/media/story/working-session.jpg" alt="Jake interviewing a PENCIL engineer and listening to his concerns"></td>
 </tr>
 <tr>
 <td><sub><b>Defining the problem.</b> Mapping where information gets lost between people, languages and tools.</sub></td>
-<td><sub><b>Working through the build.</b> Bringing the research, prototype and demonstration together.</sub></td>
+<td><sub><b>Listening to an engineer.</b> Understanding his concerns before deciding what to build.</sub></td>
 </tr>
 </table>
 
@@ -45,7 +45,7 @@ The final demonstration showed a local data-to-detection pipeline and a simulate
 
 <img src="docs/media/story/team-qrec-completion.jpg" alt="Takeshi, Jake and Sydney with completion certificates and the QREC banner after the final presentation" width="850">
 
-*Our team at the end of Venture Life Challenge. The [full story](docs/BUILD_STORY.md) includes all eight photos: the company visit, Kyushu University, planning, working sessions, HR and engineering review, and final presentation.*
+*Our team at the end of Venture Life Challenge. The [full story](docs/BUILD_STORY.md) includes the full photo story: the company visit, Kyushu University, planning, working sessions, HR and engineering review, and final presentation.*
 
 ---
 
