@@ -1,6 +1,6 @@
 # PENCIL Bridge photographs and story sources
 
-All eight photographs were supplied by Jake for this project story. No people, backgrounds or screen contents have been generated or retouched. JPEG copies have embedded metadata removed; the HEIC originals were converted with macOS ImageIO at a maximum edge of 1600 pixels. The originals remain unchanged. Upright orientation was visually checked.
+All eight photographs were supplied by Jake for this project story. No people, backgrounds or screen contents have been generated or retouched. JPEG copies have embedded metadata removed; the HEIC originals were converted with macOS ImageIO at a maximum edge of 1600 pixels. The originals remain unchanged. The two portrait photographs use lossless 90° JPEG rotations so their upright orientation does not depend on metadata.
 
 | Published photograph | Supplied original | Caption basis |
 | --- | --- | --- |
@@ -8,8 +8,8 @@ All eight photographs were supplied by Jake for this project story. No people, b
 | `story/whiteboard-problem-framing.jpg` | `IMG_5997.HEIC` | Jake at the communication-challenge whiteboard. |
 | `story/working-session.jpg` | `IMG_6008.JPG` | Project discussion with laptops; no individual interview outcome is inferred. |
 | `story/team-at-pencil.jpg` | `IMG_6213 3.JPG` | Group at PENCIL with the PENCIL Bridge presentation on screen. |
-| `story/at-pencil-fukuoka.jpg` | `IMG_5961.HEIC` | Jake at the PENCIL office photo spot. |
-| `story/kyushu-university.jpg` | `IMG_6073.HEIC` | Jake at the Kyushu University entrance. |
+| `story/at-pencil-fukuoka-upright.jpg` | `IMG_5961.HEIC` | Jake at the PENCIL office photo spot. |
+| `story/kyushu-university-upright.jpg` | `IMG_6073.HEIC` | Jake at the Kyushu University entrance. |
 | `story/final-presentation.jpg` | `IMG_6245.JPG` | Final presentation event screen identifies August 29 and Venture Life Challenge 2026. |
 | `story/team-qrec-completion.jpg` | `IMG_6243.JPG` | Takeshi, Jake and Sydney with completion certificates and the QREC banner. These are completion certificates, not evidence of a competition prize. |
 

@@ -18,8 +18,8 @@ PENCIL’s office stood out to me straight away. It was creative and open, and I
 
 <table>
 <tr>
-<td width="50%"><img src="media/story/at-pencil-fukuoka.jpg" alt="Jake at the PENCIL office photo spot overlooking Fukuoka"></td>
-<td width="50%"><img src="media/story/kyushu-university.jpg" alt="Jake at the Kyushu University entrance during the program"></td>
+<td width="50%"><img src="media/story/at-pencil-fukuoka-upright.jpg" alt="Jake at the PENCIL office photo spot overlooking Fukuoka"></td>
+<td width="50%"><img src="media/story/kyushu-university-upright.jpg" alt="Jake at the Kyushu University entrance during the program"></td>
 </tr>
 <tr>
 <td><sub>At PENCIL in Fukuoka.</sub></td>
