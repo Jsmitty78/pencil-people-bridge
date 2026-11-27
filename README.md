@@ -1,3 +1,5 @@
+<p align="right"><strong>English</strong> | <a href="docs/BUILD_STORY.ja.md">日本語</a></p>
+
 # PENCIL Bridge
 
 ## Built in 10 days at PENCIL（株式会社ペンシル）, Fukuoka
