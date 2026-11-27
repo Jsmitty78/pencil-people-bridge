@@ -1,6 +1,8 @@
 # PENCIL Bridge
 
-## Built in 10 days at PENCIL, Fukuoka
+## Built in 10 days at PENCIL（株式会社ペンシル）, Fukuoka
+
+**With Kyushu University（九州大学） · QREC Venture Life Challenge 2026**
 
 **A bilingual HR review prototype, developed through employee interviews and feedback from the company’s HR and engineering teams.**
 
@@ -53,7 +55,7 @@ The final demonstration showed a local data-to-detection pipeline and a simulate
 
 PENCIL Bridge is a bilingual, HR-only decision-support prototype that detects possible gaps in shared understanding across existing workplace records. It organizes evidence around a work issue, shows HR why the issue was flagged, and keeps every final decision with a person.
 
-This was developed during the **PENCIL Co., Ltd. internship** in the **Kyushu University QREC Venture Life Challenge 2026**. It is a student internship prototype, not an official PENCIL product or a production HR system.
+This was developed during the **PENCIL（株式会社ペンシル） internship** in the **Kyushu University QREC Venture Life Challenge 2026**. It is a student internship prototype, not an official PENCIL product or a production HR system.
 
 | | |
 | --- | --- |
