@@ -1,5 +1,47 @@
 # PENCIL Bridge
 
+## Built in 10 days at PENCIL, Fukuoka
+
+**A bilingual HR review prototype, developed through employee interviews and feedback from the company’s HR and engineering teams.**
+
+I led **prototype and demo development, product direction and technical delivery**, working with **Takeshi Yamamoto** and **Sydney Magnolia Tjandra** during Kyushu University’s **QREC Venture Life Challenge 2026**. In our ten-day build, we turned an internal communication problem into a working demonstration that we could put in front of the people who would review and use it.
+
+<img src="docs/media/story/engineering-and-hr-review.jpg" alt="Jake working on PENCIL Bridge with the internal engineering division, two HR supervisors and an engineering director" width="900">
+
+*Reviewing the prototype with PENCIL’s internal engineering division, two HR supervisors and an engineering director.*
+
+| Research | Build | Review | Delivery |
+| --- | --- | --- | --- |
+| **10 employee interviews** across HR, management, consultants and engineers | **Japanese and English prototype** with 10 fictional issues and 40 source records | **Company HR and engineering feedback** informing the workflow and evidence views | **Final presentation on August 29**, with a subtitled demo and financial planning case |
+
+**[Read the full ten-day story and photo essay →](docs/BUILD_STORY.md)** · [Try the demo](https://pencil-people-bridge.vercel.app) · [Explore the implementation](#architecture)
+
+### The work behind the demo
+
+I went to Fukuoka to get hands-on experience outside my usual environment in Kansai. Inside PENCIL, we spoke with employees and worked through how information could become scattered between meetings, messages, tasks and verbal conversations. The question became how to help HR reconstruct the context and ask a useful follow-up before a misunderstanding turned into more work.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/story/whiteboard-problem-framing.jpg" alt="Jake explaining the communication challenge and project plan at the whiteboard"></td>
+<td width="50%"><img src="docs/media/story/working-session.jpg" alt="Jake and a teammate working through the project with laptops"></td>
+</tr>
+<tr>
+<td><sub><b>Defining the problem.</b> Mapping where information gets lost between people, languages and tools.</sub></td>
+<td><sub><b>Working through the build.</b> Bringing the research, prototype and demonstration together.</sub></td>
+</tr>
+</table>
+
+HR feedback helped us focus on reviewing work issues with traceable evidence. Engineering feedback pushed us to think through related records, regular reporting and clear reasons for each finding. I translated that direction into the prototype and demo, while Takeshi led employee research and supported the engineering, and Sydney brought design, business strategy and presentation work.
+
+The final demonstration showed a local data-to-detection pipeline and a simulated HR review workflow. It used fictional records, kept Japanese and English available throughout, and left follow-up decisions with a person. The full implementation details and prototype boundaries are preserved below.
+
+<img src="docs/media/story/team-qrec-completion.jpg" alt="Takeshi, Jake and Sydney with completion certificates and the QREC banner after the final presentation" width="850">
+
+*Our team at the end of Venture Life Challenge. The [full story](docs/BUILD_STORY.md) includes all eight photos: the company visit, Kyushu University, planning, working sessions, HR and engineering review, and final presentation.*
+
+---
+
+
 > A bilingual workspace for reviewing unclear instructions, source records, and follow-up questions.
 
 **[Try the live demo](https://pencil-people-bridge.vercel.app)** · [Product case study and my contribution](https://github.com/Jsmitty78/Jsmitty78/blob/main/projects/bridge.md) · [Team and internship record](docs/PROJECT_ARCHIVE.md)
